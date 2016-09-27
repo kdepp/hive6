@@ -1,16 +1,43 @@
+var crypto = require('crypto');
 var db = require('../db/mongo');
 var ERROR = require('../common/error_code');
 var id = function (x) { return x };
+
+var rsaEncrypt = function (str) {
+  return crypto.createHash('RSA-SHA256').update(str).digest('hex');
+};
 
 module.exports = {
   findById: function (id) {
     return db.users.findById(id);
   },
-  findByUserName: function (username) {
-    return db.users.findOne({username: username});
-  },
   login: function (username, password) {
+    return new Promise(function (resolve, reject) {
+      if (!username) {
+        throw ERROR.LOGIN.USERNAME_EMPTY;
+      }
 
+      if (!password) {
+        throw ERROR.LOGIN.PASSWORD_EMPTY;
+      }
+
+      db.users.findOne({username: username})
+      .then(function (user) {
+        console.log('found', user);
+        if (!user)  {
+          return reject(ERROR.LOGIN.USER_NOT_EXIST);
+        }
+
+        if (user.password !== rsaEncrypt(password)) {
+          return reject(ERROR.LOGIN.USERNAME_PASSWORD_UNMATCHED);
+        }
+
+        resolve(user);
+      })
+      .catch(function (err) {
+        console.log(err.stack);
+      })
+    });
   },
   register: function (username, password, retype) {
     return new Promise(function (resolve, reject) {
@@ -37,7 +64,7 @@ module.exports = {
 
       db.users.insertOne({
         username: username,
-        password: password
+        password: rsaEncrypt(password)
       })
       .then(
         function (r) {

@@ -1,21 +1,26 @@
 var passport = require('passport');
 var Strategy = require('passport-local').Strategy;
 var mUser = require('../models/user');
+var u = require('./utils');
 
 passport.use(new Strategy(function (username, password, done) {
-  mUser.findByUserName(username)
-  .then(function (user) {
-    if (!user)  {
-      return done(null, false, {message: 'username does not exist'});
+  mUser.login(username, password)
+  .then(
+    function (user) {
+      console.log('in passport login', user);
+      if (typeof user === 'number') return done(null, false);
+      return done(null, user);
+    },
+    function (error_code) {
+      if (typeof error_code === 'number') {
+        done(null, false, u.makeError(error_code));
+      } else {
+        done(error_code);
+      }
     }
-    if (user.password !== password) {
-      return done(null, false, {message: 'password not correct'});
-    }
-
-    return done(null, user);
-  })
+  )
   .catch(function (err) {
-    done(err);
+    console.log(err.stack);
   });
 }));
 

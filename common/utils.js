@@ -1,3 +1,5 @@
+var ERROR = require('./error_code');
+
 var utils = {
   setRouter: function (app, routes) {
     var checkMethod = function (method) {
@@ -22,7 +24,8 @@ var utils = {
     });
   },
 
-  errText: function (errors, code) {
+  errText: function (code) {
+    var errors = ERROR;
     var helper = function (errors, stack, code) {
       var keys = Object.keys(errors);
       var next = [];
@@ -46,6 +49,10 @@ var utils = {
     var ret = helper(errors, [], code);
     console.log('errText', ret);
     return ret && ret.join(' -> ');
+  },
+
+  makeError: function (code) {
+    return new Error(utils.errText(code));
   }
 };
 

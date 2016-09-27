@@ -12,6 +12,9 @@ module.exports = {
     PASSWORD_NOT_EQUAL: inc()
   },
   LOGIN: {
-    USERNAME_PASSWORD_UNMATCHED: inc()
+    USERNAME_PASSWORD_UNMATCHED: inc(),
+    USER_NOT_EXIST: inc(),
+    USERNAME_EMPTY: inc(),
+    PASSWORD_EMPTY: inc()
   },
 };

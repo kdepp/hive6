@@ -5,7 +5,6 @@ var mUser = require('../models/user');
 var u = require('../common/utils');
 
 var ensure = ensureLoggedIn('/login');
-var id = function (x) { return x };
 
 var userAndError = function (req, data) {
   var user = req.user;
@@ -16,7 +15,7 @@ var userAndError = function (req, data) {
     isLogined: !!user,
     error: error.length && {
       code: error[0],
-      msg: u.errText(ERROR, parseInt(error[0]))
+      msg: u.errText(parseInt(error[0]))
     }
   }, data);
 };
