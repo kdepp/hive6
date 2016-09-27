@@ -1,0 +1,17 @@
+extends frame.pug
+
+block title
+  | Login
+
+block content
+  h1
+    span Hello #{username}
+    if isLogined
+      a(href='/logout') Logout
+  if error
+    p #{error.msg}
+  form(method='post' action='/login')
+    input(type='text' name='username')
+    input(type='password' name='password')
+    input(type='submit' name='Login')
+    a(href='/register') Register

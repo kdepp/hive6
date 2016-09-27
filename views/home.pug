@@ -1,0 +1,12 @@
+extends frame.pug
+
+block title
+  | Login
+
+block content
+  h1 Welcome to Hive6!
+  if isLogined
+    a(href='/logout') Logout
+  else
+    a(href='/login') Login
+    a(href='/register') Register

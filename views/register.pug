@@ -1,0 +1,26 @@
+extends frame.pug
+
+block title
+  | Register
+
+block content
+  if error
+    p #{error.msg}
+  form(method='post' action='/register' onsubmit='return check()')
+    input#username(type='text' name='username')
+    input#password(type='password' name='password')
+    input#retype(type='password' name='retype')
+    input(type='submit' name='Register')
+  script.
+    function check() {
+      console.log('go')
+      var $p1 = document.getElementById('password');
+      var $p2 = document.getElementById('retype');
+
+      if ($p1.value !== $p2.value)  {
+        alert('password not equal');
+        return false;
+      }
+
+      return true;
+    }
