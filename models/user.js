@@ -32,6 +32,7 @@ module.exports = {
           return reject(ERROR.LOGIN.USERNAME_PASSWORD_UNMATCHED);
         }
 
+        delete user.password;
         resolve(user);
       })
       .catch(function (err) {
@@ -69,6 +70,7 @@ module.exports = {
       .then(
         function (r) {
           var user = r.ops[0];
+          delete user.password;
           resolve(user);
         },
         function (err) {

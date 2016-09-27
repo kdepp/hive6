@@ -17,6 +17,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(session({
   secret: 'hive6 coming',
   resave: false,
+  saveUninitialized: false,
   cookie: {},
   store: new MongoStore({
     url: 'mongodb://localhost/hive6'
