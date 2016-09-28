@@ -130,10 +130,34 @@ var apiRouter = [
       .then(
         function (data) {
           console.log('move done');
-          output(res, 0, null);
+          output(res, 0, {
+            updateTime: new Date() * 1
+          });
         },
         wrapUnknownError(res, function (error_code) {
           console.log('move error');
+          output(res, error_code, null);
+        })
+      )
+      .catch(logError);
+    }
+  }
+  , {
+    method: 'get', url: version('/game/:id/check'),
+    callback: function (req, res) {
+      console.log('in here');
+      if (!req.user)  return output(res, ERROR.USER.NEED_LOGIN, null);
+
+      var userId = req.user._id.toString();
+      var gameId = req.params.id;
+      var timestamp = req.query.timestamp;
+
+      mGame.checkExpire(gameId, userId, timestamp)
+      .then(
+        function (data) {
+          output(res, 0, data);
+        },
+        wrapUnknownError(res, function (error_code) {
           output(res, error_code, null);
         })
       )

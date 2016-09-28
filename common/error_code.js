@@ -26,6 +26,7 @@ module.exports = {
   GAME: {
     GAME_ID_EMPTY: inc(),
     USER_ID_EMPTY: inc(),
+    USER_UNAUTHORIZED: inc(),
     CREATE: {
       SIDE_EMPTY: inc(),
     },
@@ -53,6 +54,9 @@ module.exports = {
       NOT_YOUR_TURN: inc(),
       INVALID_ROLE_COUNT: inc(),
       INVALID_MOVEMENT: inc()
+    },
+    CHECK: {
+      TIMESTAMP_EMPTY: inc()
     }
   }
 };

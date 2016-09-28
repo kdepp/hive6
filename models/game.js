@@ -228,6 +228,26 @@ var mGame = {
         $set:  {board: board, updateTime: new Date()}
       });
     });
+  },
+  checkExpire: function (gameId, userId, timestamp) {
+    if (!timestamp) {
+      return Promise.reject(ERROR.GAME.CHECK.TIMESTAMP_EMPTY);
+    }
+
+    return mGame.findById(gameId)
+    .then(function (game) {
+      if (game.players.indexOf(userId) === -1) {
+        throw ERROR.GAME.USER_UNAUTHORIZED;
+      }
+
+      var lastMove = game.movement[game.movement.length - 1];
+
+      if (lastMove && lastMove.createTime > timestamp) {
+        return {expired: true, game: game};
+      }
+
+      return {expired: false};
+    });
   }
 };
 
