@@ -4,7 +4,7 @@ var ObjectID = require('mongodb').ObjectID;
 var uri = 'mongodb://localhost/hive6';
 var dbInstance = null
 var connectionPromise = null;
-var collectionNames = ['users'];
+var collectionNames = ['users', 'games'];
 
 var connect = function () {
   if (dbInstance) return Promise.resolve(dbInstance);
@@ -53,6 +53,11 @@ var makeDB = function (name) {
   ret.findById = function (id) {
     id = typeof id === 'string' ? ObjectID(id) : id;
     return ret.findOne({_id: id});
+  };
+
+  ret.updateById = function (id, data, options) {
+    id = typeof id === 'string' ? ObjectID(id) : id;
+    return ret.updateOne({_id: id}, data, options);
   };
 
   return ret;

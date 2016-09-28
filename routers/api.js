@@ -1,9 +1,14 @@
 var ERROR = require('../common/error_code');
 var mUser = require('../models/user');
+var mGame = require('../models/game');
 var u = require('../common/utils');
 
 var version = function (url) {
   return '/api/v1' + url;
+};
+
+var logError = function (err) {
+  console.log(err.stack);
 };
 
 var output = function (res, error_code, data, msg) {
@@ -19,7 +24,8 @@ var output = function (res, error_code, data, msg) {
 var wrapUnknownError = function (res, fn) {
   return function (err) {
     if (typeof err !== 'number') {
-      return output(res, -1, null, err.toString());
+      console.log('unknown error', err);
+      return output(res, -1, null, err);
     }
     return fn(err);
   };
@@ -36,13 +42,11 @@ var apiRouter = [
         function (user) {
           output(res, 0, user);
         },
-        wrapUnknownError(function (error_code) {
+        wrapUnknownError(res, function (error_code) {
           output(res, error_code, null);
         })
       )
-      .catch(function (err) {
-        console.log(err.stack);
-      });
+      .catch(logError);
     }
   }
   , {
@@ -55,10 +59,85 @@ var apiRouter = [
         function (user) {
           output(res, 0, user);
         },
-        wrapUnknownError(function (error_code) {
+        wrapUnknownError(res, function (error_code) {
           output(res, error_code, null);
         })
       )
+      .catch(logError);
+    }
+  }
+  , {
+    method: 'post', url: version('/game/:id/join'),
+    callback: function (req, res) {
+      var gameId = req.params.id;
+      var password = req.body && req.body.password;
+      var userId = req.user._id.toString();
+
+      console.log('got it in join', gameId, password, userId);
+
+      mGame.join(gameId, userId, password)
+      .then(
+        function (data) {
+          output(res, 0, data);
+        },
+        wrapUnknownError(res, function (error_code) {
+          output(res, error_code, null);
+        })
+      )
+      .catch(logError);
+    }
+  }
+  , {
+    method: 'post', url: version('/game/create'),
+    callback: function (req, res) {
+      if (!req.user)  return output(res, ERROR.USER.NEED_LOGIN, null);
+
+      var userId = req.user._id.toString();
+      var sideId = parseInt(req.body.sideId);
+
+      console.log(sideId, typeof sideId);
+
+      mGame.create(userId, sideId)
+      .then(
+        function (game) {
+          output(res, 0, {
+            link: '/game/' + game._id.toString(),
+            password: game.password
+          });
+        },
+        wrapUnknownError(res, function (error_code) {
+          output(res, error_code, null);
+        })
+      )
+      .catch(logError);
+    }
+  }
+  , {
+    method: 'post', url: version('/game/:id/move'),
+    callback: function (req, res) {
+      if (!req.user)  return output(res, ERROR.USER.NEED_LOGIN, null);
+
+      var userId = req.user._id.toString();
+      var gameId = req.params.id;
+      var post   = req.body;
+
+      mGame.move(
+        gameId, userId,
+        parseInt(post.type), parseInt(post.sideId),
+        parseInt(post.roleId), post.src,
+        post.dst, post.board
+      )
+      .then(
+        function (data) {
+          console.log('move done');
+          output(res, 0, null);
+        },
+        wrapUnknownError(res, function (error_code) {
+          console.log('move error');
+          output(res, error_code, null);
+        })
+      )
+      .catch(logError);
     }
   }
 ];

@@ -9,27 +9,33 @@ var rsaEncrypt = function (str) {
 
 module.exports = {
   findById: function (id) {
-    return db.users.findById(id);
+    return db.users.findById(id)
+    .then(function (user) {
+      if (!user) {
+        throw ERROR.USER.FIND_BY_ID.USER_NOT_EXIST;
+      }
+      return user;
+    });
   },
   login: function (username, password) {
     return new Promise(function (resolve, reject) {
       if (!username) {
-        throw ERROR.LOGIN.USERNAME_EMPTY;
+        throw ERROR.USER.LOGIN.USERNAME_EMPTY;
       }
 
       if (!password) {
-        throw ERROR.LOGIN.PASSWORD_EMPTY;
+        throw ERROR.USER.LOGIN.PASSWORD_EMPTY;
       }
 
       db.users.findOne({username: username})
       .then(function (user) {
         console.log('found', user);
         if (!user)  {
-          return reject(ERROR.LOGIN.USER_NOT_EXIST);
+          return reject(ERROR.USER.LOGIN.USER_NOT_EXIST);
         }
 
         if (user.password !== rsaEncrypt(password)) {
-          return reject(ERROR.LOGIN.USERNAME_PASSWORD_UNMATCHED);
+          return reject(ERROR.USER.LOGIN.USERNAME_PASSWORD_UNMATCHED);
         }
 
         delete user.password;
@@ -43,15 +49,15 @@ module.exports = {
   register: function (username, password, retype) {
     return new Promise(function (resolve, reject) {
       if (!username) {
-        throw ERROR.REGISTER.NO_USERNAME;
+        throw ERROR.USER.REGISTER.NO_USERNAME;
       }
 
       if (password !== retype) {
-        throw ERROR.REGISTER.PASSWORD_NOT_EQUAL;
+        throw ERROR.USER.REGISTER.PASSWORD_NOT_EQUAL;
       }
 
       if (password.length < 6) {
-        throw ERROR.REGISTER.PASSWORD_TOO_SHORT;
+        throw ERROR.USER.REGISTER.PASSWORD_TOO_SHORT;
       }
 
       if ([
@@ -60,7 +66,7 @@ module.exports = {
         /[0-9]/.test(password),
         /[~!@#$%^&*()_+=-[\]{}'";:/?.>,<`]/.test(password)
       ].filter(id).length < 4) {
-        throw ERROR.REGISTER.PASSWORD_TOO_SIMPLE;
+        throw ERROR.USER.REGISTER.PASSWORD_TOO_SIMPLE;
       }
 
       db.users.insertOne({
@@ -74,7 +80,7 @@ module.exports = {
           resolve(user);
         },
         function (err) {
-          throw ERROR.REGISTER.USERNAME_EXISTED;
+          throw ERROR.USER.REGISTER.USERNAME_EXISTED;
         }
       );
     });
