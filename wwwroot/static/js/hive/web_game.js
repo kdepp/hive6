@@ -57,44 +57,46 @@ var gameFactory = function (options) {
     vBoard.update(data);
   });
 
-  // initialize player toolbars
-  var vToolbars = [0, 1].map(function (sideId, i) {
-    var vToolbar = toolbarFactory({
-      $container: opts.$toolbarContainers[i],
-      dnd: dndInstance,
-      samples: sampleChesses,
-      canMove: function () {
-        return core.canMove(sideId);
-      }
-    });
-
-    return vToolbar;
-  });
+  var participants  = [];
+  var vToolbars     = [];
 
   // initialize players
-  var participants = opts.playertypes.map(function (type, sideId) {
+  opts.playertypes.map(function (type, sideId) {
     var chair = core.register(sideId);
+    var vToolbar = toolbarFactory({
+      $container: opts.$toolbarContainers[sideId],
+      dnd: dndInstance,
+      samples: sampleChesses,
+      sideId: sideId,
+      inventory: chair.inventory(),
+      canMove: function () {
+        return chair.canMove();
+      }
+    });
     var player;
 
     if (type === CG.PLAYER_TYPE.HUMAN.ID) {
       player = humanPlayer({
-        prepare: function () {
-          return;
-        }
+        chair: chair
+      });
+
+      player.on('UPDATE_POSSIBLE_MOVE', function (data) {
+        vBoard.setAvailables(data.availables);
+      });
+      vToolbar.on('START_PLACE_' + sideId, function (data) {
+        player.mayPlace(data.roleId);
+      });
+      vBoard.on('START_MOVE_' + sideId, function (data) {
+        player.mayMove(data.src);
+      });
+      vBoard.on('MOVE_' + sideId, function (data) {
+        player.move(data.src, data.dst);
+      });
+      vBoard.on('PLACE_' + sideId, function (data) {
+        player.place(data.roleId, data.dst);
       });
       vBoard.addHumanControl(sideId);
-      vBoard.on('START_MOVE_' + sideId, function (src) {
-        player.mayMove(src);
-      });
-      vBoard.on('START_PLACE_' + sideId, function (roleId) {
-        player.mayPlace(roleId);
-      });
-      vBoard.on('MOVE_' + sideId, function (src, dst) {
-        player.move(src, dst);
-      });
-      vBoard.on('PLACE_' + sideId, function (roleId, dst) {
-        player.place(roleId, dst);
-      })
+      vToolbar.addHumanControl(sideId);
     } else if (type === CG.PLAYER_TYPE.REMOTE.ID) {
       player = null;
     } else if (type === CG.PLAYER_TYPE.AI.ID) {
@@ -111,10 +113,16 @@ var gameFactory = function (options) {
       }
     });
 
-    return {
+    chair.on('INVENTORY_UPDATE', function (data) {
+      vToolbar.setInventory(data.inventory);
+    });
+
+    participants.push({
       player: player,
       chair: chair
-    };
+    });
+
+    vToolbars.push(vToolbar);
   });
 
   return {

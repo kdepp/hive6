@@ -3,6 +3,7 @@ var pu = require('../../../common/point_utils');
 var cu = require('../../../common/canvas_utils');
 var du = require('../../../common/dom_utils');
 var CG = require('../../../constant/game');
+var Eventer = require('../../../common/event_emitter');
 
 var ROLE = CG.ROLE;
 var SIDE = CG.SIDE;
@@ -10,12 +11,14 @@ var SIDE = CG.SIDE;
 var toolbarFactory = function (options) {
   var opts = Object.assign({
     dnd: null,
-    game: null,
     samples: null,
-    $container: document.body,
-    inventory: x.repeat(2, [1, 3, 3, 2, 2])
+    $container: null,
+    inventory: null,
+    sideId: null
   }, options);
-  var $players;
+  var inventory = opts.inventory;
+  var $canvas   = null;
+  var ctx       = null;
   var playerCommonStyle = {
     position: 'absolute',
     top: '15px',
@@ -23,14 +26,11 @@ var toolbarFactory = function (options) {
     height: '560px',
     border: '1px solid #ccc'
   };
-  var playerConfigs = [
-    { style: { left: '15px' }, title: '本方' },
-    { style: { right: '15px' }, title: '对方' }
-  ];
+  var playerConfig = { style: { left: '15px' }, title: '方方' };
   var offsetX = 30;
   var offsetY = 80;
   var radius = 30;
-  var centers = opts.inventory[0].map(function (c, index) {
+  var centers = inventory.map(function (c, index) {
     return [offsetX + radius, offsetY + 2 * radius * index];
   });
 
@@ -41,30 +41,26 @@ var toolbarFactory = function (options) {
   };
 
   var _init = function () {
-    $players = playerConfigs.map(function (config, i) {
+    $canvas = (function () {
       var $dom = document.createElement('canvas');
-      du.setStyle($dom, Object.assign({}, playerCommonStyle, config.style));
+      du.setStyle($dom, Object.assign({}, playerCommonStyle, playerConfig.style));
       opts.$container.appendChild($dom);
 
       opts.dnd.addSource({
         $dom: $dom,
         onDragStart: function (ev) {
+          if (!opts.canMove())  return null;
+
           var roleId = pos2roleId(ev.localX, ev.localY);
           if (roleId === -1) return null;
+          if (inventory[roleId] <= 0) return null;
 
-          if (!opts.game.check({
-            sideId: i,
-            roleId: roleId
-          })) {
-            return null;
-          }
-
-          if (opts.inventory[i][roleId] <= 0) return null;
+          vToolbar.emit('START_PLACE_' + opts.sideId, {roleId: roleId});
 
           return [
-            opts.samples[i][roleId],
+            opts.samples[opts.sideId][roleId],
             {
-              sideId: i,
+              sideId: opts.sideId,
               roleId: roleId,
               from: 'toolbar',
               originPos: null
@@ -72,32 +68,27 @@ var toolbarFactory = function (options) {
           ];
         },
         onDragEnd: function (ev) {
-          if (!ev.success || !ev.dragging) return;
-          opts.inventory[i][ev.dragging.type.roleId] --;
-          _renderPlayers();
+          // if (!ev.success || !ev.dragging) return;
+          // opts.inventory[i][ev.dragging.type.roleId] --;
+          // _renderPlayers();
         }
       });
 
       return $dom;
-    });
+    })();
 
-    _renderPlayers();
+    ctx = $canvas.getContext('2d');
+    _renderPlayer();
   };
 
-  var _renderPlayers = function () {
-    $players.forEach(function (canvas, i) {
-      _renderPlayer(canvas.getContext('2d'), i, playerConfigs[i], opts.inventory[i]);
-    });
-  };
-
-  var _renderPlayer = function (ctx, sideId, config, inventory) {
+  var _renderPlayer = function () {
     var reset;
 
     ctx.canvas.width  = parseInt(playerCommonStyle.width, 10);
     ctx.canvas.height = parseInt(playerCommonStyle.height, 10);
 
-    var isYourTurn = sideId === SIDE.ME.ID && opts.game.whiteTurn() ||
-                     sideId === SIDE.OP.ID && opts.game.blackTurn();
+    var isYourTurn = opts.sideId === SIDE.ME.ID ||
+                     opts.sideId === SIDE.OP.ID;
 
     du.setStyle(ctx.canvas, {
       backgroundColor: isYourTurn ? 'rgb(203, 249, 186)' : 'transparent'
@@ -109,12 +100,12 @@ var toolbarFactory = function (options) {
       ['fillStyle', '#333']
     ]);
 
-    ctx.fillText(config.title, 10, 30);
+    ctx.fillText(playerConfig.title, 10, 30);
     reset();
 
     // Render Available Chess
     inventory.forEach(function (count, roleId) {
-      var side = x.findValue(SIDE, 'ID', sideId);
+      var side = x.findValue(SIDE, 'ID', opts.sideId);
       var role = x.findValue(ROLE, 'ID', roleId);
 
       cu.marginHexagon(ctx, {
@@ -135,13 +126,17 @@ var toolbarFactory = function (options) {
     });
   };
 
-  opts.game.on('MOVE', _renderPlayers);
-
-  return {
+  var vToolbar = Eventer({
     init: function () {
       return _init();
+    },
+    setInventory: function (_inventory) {
+      inventory = _inventory;
+      _renderPlayer();
     }
-  }
+  });
+
+  return vToolbar;
 };
 
 module.exports = toolbarFactory;

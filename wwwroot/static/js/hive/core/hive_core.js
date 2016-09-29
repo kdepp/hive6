@@ -25,12 +25,21 @@ var coreFactory = function (store, options) {
   var opts = Object.assign({
     extension: false
   }, options);
+  var coordinates, board;
 
-  var board = data.board || [];
-  var coordinates = data.coordinates || [];
   var movements = data.movements || [];
   var inventories = calcInventory(board, coordinates, opts.extension);
   var registered = [];
+
+  var setCoordinates = function (coords) {
+    coordinates = coords || [];
+    board = pu.convert.ns3InfoListToD3(
+      x.pluck('point', coordinates),
+      coordinates
+    );
+  };
+
+  setCoordinates(data.coordinates);
 
   var stepCount = function () {
     return movements.length;
@@ -55,10 +64,13 @@ var coreFactory = function (store, options) {
     });
   };
 
-  var notify = function (sideId) {
+  var notify = function (sideId, isPlace) {
     notifyBoard('NEW_MOVEMENT', cloneData());
     notifyPlayer(sideId,     'TOGGLE_YOUR_TURN', Object.assign({on: true},  cloneData()));
     notifyPlayer(1 - sideId, 'TOGGLE_YOUR_TURN', Object.assign({on: false}, cloneData()));
+    if (isPlace) {
+      notifyPlayer(1 - sideId, 'INVENTORY_UPDATE', { inventory: inventories[1 - sideId] });
+    }
   };
 
   var fns = {
@@ -83,32 +95,53 @@ var coreFactory = function (store, options) {
       if (!fns.canMove(sideId)) {
         throw new Error('CANNOT MOVE');
       }
+
       if (!m.checkPlace(board, sideId, dst)) {
         throw new Error('INVALID PLACEMENT');
       }
 
-      // TODO: modify board
-      notify(1 - sideId);
+      if (inventories[sideId][roleId] <= 0) {
+        throw new Error('OUT OF INVENTORY');
+      }
+
+      // modify board
+      var info   = pu.d3.getPoint(board, dst);
+      var zIndex = info ? (info.zIndex + 1) : 1;
+
+      inventories[sideId][roleId]--;
+      coordinates.push({
+        sideId: sideId,
+        roleId: roleId,
+        zIndex: zIndex,
+        point:  dst
+      });
+      setCoordinates(coordinates);
+      notify(1 - sideId, true);
     },
     move: function (sideId, src, dst) {
       if (!fns.canMove(sideId)) {
         throw new Error('CANNOT MOVE');
       }
+
       if (!m.checkMove(board, sideId, src, dst)) {
         throw new Error('INVALID MOVEMENT');
       }
 
-      // TODO: modify board
-      notify(1 - sideId);
+      // modify board
+      var info     = pu.d3.getPoint(board, dst);
+      var zIndex   = info ? (info.zIndex + 1) : 1;
+      var coord    = pu.d3.getPoint(board, src);
+
+      coord.point  = dst;
+      coord.zIndex = zIndex;
+      setCoordinates(coordinates);
+      notify(1 - sideId, false);
     }
   };
 
   var core = Eventer({
     canMove: function (sideId) {
       return fns.canMove(sideId);
-    },
-    inventory: function (sideId) {
-      return fns.inventory(sideId);
     },
     register: function (sideId) {
       if (registered.find(function (item) { return item.sideId === sideId })) {
