@@ -14,10 +14,10 @@ var boardFactory = function (_opts) {
     samples: null,
     radius: 30,
     points: [[[0, 0], [0, 0]]],
-    pinfos: [{ role: ROLE.BEE.ID, side: SIDE.ME.ID, zIndex: 1, links: []}]
+    pinfos: [{role: ROLE.BEE.ID, side: SIDE.ME.ID, zIndex: 1, links: []}]
   }, _opts);
   var radius = opts.radius;
-  var origin = [[ctx.canvas.width / 2, 0], [ctx.canvas.height / 2, 0]];
+  var origin = [[opts.ctx.canvas.width / 2, 0], [opts.ctx.canvas.height / 2, 0]];
 
   /*
    * Board Status
@@ -47,7 +47,7 @@ var boardFactory = function (_opts) {
 
         if (!found) return;
         var pinfo = pu.d3.getPoint(d3Index, pu.convert.ns3ToD3(found));
-        var index = pinfos.findIndex(function (item) { return pinfo == item });
+        var index = pinfos.findIndex(function (item) { return pinfo === item });
 
         if (!opts.game.check({
           sideId: pinfo.side,
@@ -90,37 +90,27 @@ var boardFactory = function (_opts) {
         });
 
         if (type.boardIndex === undefined) {
-
           // Dragging from toolbar
           if (points.length === 0) {
-
-            availables = [[0, 0, 0]].map(convertTo2d);
-
+            availables = [[0, 0, 0]].map(pu.convert.d3ToNs3);
           } else if (points.filter(onSide(type.sideId)).length === 0) {
-
             availables = x.compose(pu.d3.uniquePoints, x.flatten)(
               points.map(pu.convert.ns3ToD3).map(pu.d3.around)
             ).map(pu.convert.d3ToNs3);
-
           } else {
-
             availables = x.compose(pu.d3.uniquePoints, x.flatten)(
               points.filter(onSide(type.sideId)).map(pu.convert.ns3ToD3).map(pu.d3.around)
             ).filter(function (coord) {
-              if (!!pu.d3.getPoint(d3Index, coord)) return false;
-              return ! pu.d3.around(coord).find(function (subCoord) {
+              if (pu.d3.getPoint(d3Index, coord)) return false;
+              return !pu.d3.around(coord).find(function (subCoord) {
                 var pinfo = pu.d3.getPoint(d3Index, subCoord);
                 return pinfo && pinfo.side === 1 - type.sideId;
               })
             }).map(pu.convert.d3ToNs3);
-
           }
-
         } else {
-
           // Dragging from board
-          availables = movement(type.roleId, convertTo3d(type.originPos), d3Index);
-
+          availables = movement(type.roleId, pu.convert.ns3ToD3(type.originPos), d3Index);
         }
 
         _render();
@@ -144,7 +134,6 @@ var boardFactory = function (_opts) {
         if (!ev.dragging) return false;
 
         if (ev.dragging.type.boardIndex !== undefined) {
-
           points[ev.dragging.type.boardIndex] = found.slice();
           destInfo = pu.d3.getPoint(d3Index, pu.convert.ns3ToD3(found));
 
@@ -152,9 +141,7 @@ var boardFactory = function (_opts) {
           createD3Index(points, pinfos);
           _render();
           checkWin();
-
         } else {
-
           addOne(found, {
             zIndex: 1,
             role: ev.dragging.type.roleId,
@@ -192,7 +179,7 @@ var boardFactory = function (_opts) {
   };
 
   var _render = function () {
-    cu.clearCanvas(optx.ctx);
+    cu.clearCanvas(opts.ctx);
 
     points.map(function (p, i) {
       return i;
@@ -239,7 +226,6 @@ var boardFactory = function (_opts) {
   };
 
   var addOne = wrap(function (point, pinfo) {
-    var index = points.length;
     points.push(point);
     pinfos.push(pinfo);
     createD3Index(points, pinfos);

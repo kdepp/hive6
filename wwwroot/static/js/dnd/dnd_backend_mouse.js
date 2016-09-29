@@ -6,14 +6,13 @@ var dndBackendMouse = function () {
   var onDragMove, onDragEnd;
   var $container;
   var unbind;
-  var isDragging = false;
 
   var inDom = function ($top, $holder, $sub) {
     var $dom = $sub;
 
     while ($dom) {
-      if ($dom == $holder)  return true;
-      if ($sub == $top) return false;
+      if ($dom === $holder)  return true;
+      if ($sub === $top) return false;
       $dom = $dom.parentNode;
     }
 
@@ -23,10 +22,9 @@ var dndBackendMouse = function () {
     var i, len, pos, $dom, onDragStart;
     var triples = sourceGetter && sourceGetter();
 
-    isDragging = true;
     if (!triples) return;
 
-    for (i = 0, len = triples.length; i < len; i ++) {
+    for (i = 0, len = triples.length; i < len; i++) {
       $dom = triples[i][0];
       onDragStart = triples[i][1];
 
@@ -40,13 +38,12 @@ var dndBackendMouse = function () {
     }
   };
   var onMouseUp = function (ev) {
-    var i, len, pos, $dom, onDragStart;
+    var i, len, pos, $dom, onDrop;
     var triples = targetGetter && targetGetter();
 
-    isDragging = false;
     if (!triples) return;
 
-    for (i = 0, len = triples.length; i < len; i ++) {
+    for (i = 0, len = triples.length; i < len; i++) {
       $dom = triples[i][0];
       onDrop = triples[i][2];
 
@@ -63,11 +60,11 @@ var dndBackendMouse = function () {
   };
   var $lastOver = null;
   var onMouseMove = function (ev) {
-    var i, len, pos, $dom, onDragStart, found;
+    var i, len, pos, $dom, onMove, onDragLeave, found;
     var triples = targetGetter && targetGetter();
     if (!triples) return;
 
-    for (i = 0, len = triples.length; i < len; i ++) {
+    for (i = 0, len = triples.length; i < len; i++) {
       $dom = triples[i][0];
       onMove = triples[i][1];
       onDragLeave = triples[i][3];
@@ -79,7 +76,7 @@ var dndBackendMouse = function () {
         found = true;
         $lastOver = $dom;
         onMove(ev);
-      } else if ($lastOver == $dom) {
+      } else if ($lastOver === $dom) {
         $lastOver = null;
         onDragLeave && onDragLeave(ev);
       }
@@ -109,3 +106,5 @@ var dndBackendMouse = function () {
     }
   };
 };
+
+module.exports = dndBackendMouse;

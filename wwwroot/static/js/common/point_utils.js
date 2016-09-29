@@ -18,16 +18,14 @@ var uniquePoints = function (points) {
   return result;
 };
 
-
 var ns3 = {
   addPoint: x.zipWith2(x.zipWith2(x.add)),
 
   negPoint: x.map(x.map(x.multi(-1))),
 
   samePoint: x.partial(function (p1, p2) {
-    var _and = function (list) { return x.and.apply(null, list); };
-    return _and(x.zipWith2(function (xs, ys) {
-      return _and(x.zipWith2(x.equal, xs, ys))
+    return x.and(x.zipWith2(function (xs, ys) {
+      return x.and(x.zipWith2(x.equal, xs, ys))
     }, p1, p2));
   }),
 
@@ -66,7 +64,7 @@ var d2 = {
 
     var adjusted = x.compose(
       d2.negPoint,
-      x.map(x.multi(2/radius)),
+      x.map(x.multi(2 / radius)),
       d2.addPoint(d2.negPoint(d2Center))
     )(pos);
 
@@ -79,7 +77,7 @@ var d2 = {
     var predicates = [-1, -1, -1, 1, 1, 1];
     var result = x.zipWith(test(adjusted), fxs, predicates);
 
-    return x.and.apply(null, result);
+    return x.and(result);
   }
 };
 
@@ -103,7 +101,7 @@ var d3 = {
 
   samePoint: x.partial(function (p1, p2) {
     if (!p1 || !p2) return false;
-    return x.and.apply(null, x.zipWith2(equal, p1, p2));
+    return x.and(x.zipWith2(x.equal, p1, p2));
   }),
 
   uniquePoints: uniquePoints,
@@ -161,7 +159,7 @@ var convert = {
   d3ToNs3: function (point3d) {
     var x = point3d[0];
     var y = point3d[1];
-    var z = point3d[2];
+    // var z = point3d[2];
 
     return [[3 * y, 0], [0, -2 * x - y]];
   },

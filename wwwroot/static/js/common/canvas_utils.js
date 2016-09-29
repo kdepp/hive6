@@ -1,5 +1,5 @@
 var x = require('./utils');
-var pu = require('./point_utils');)
+var pu = require('./point_utils');
 var CC = require('../constant/coordinate');
 var CG = require('../constant/game');
 
@@ -85,8 +85,8 @@ var drawChessImage = function (ctx, center, radius, image, size) {
 
 var marginHexagon = function (ctx, options) {
   var opts = Object.assign({
-    fillStyle: "#666",
-    marginStyle: "rgb(255, 255, 255)",
+    fillStyle: '#666',
+    marginStyle: 'rgb(255, 255, 255)',
     center: [100, 100],
     radius: 50,
     margin: 3
@@ -97,8 +97,6 @@ var marginHexagon = function (ctx, options) {
     ['strokeStyle', opts.marginStyle],
     ['lineWidth', opts.margin]
   ]);
-
-  var resetFontStyle;
 
   hexagon(ctx, opts.center, opts.radius);
   hexagon(ctx, opts.center, opts.radius - Math.floor(opts.margin / 2 - 0.1), true);
@@ -122,5 +120,6 @@ var marginHexagon = function (ctx, options) {
 module.exports = {
   setContext: setContext,
   marginHexagon: marginHexagon,
-  clearCanvas: clearCanvas
+  clearCanvas: clearCanvas,
+  imgUrl: imgUrl
 };

@@ -57,7 +57,7 @@ var coreFactory = function (store, options) {
 
   var notify = function (sideId) {
     notifyBoard('NEW_MOVEMENT', cloneData());
-    notifyPlayer(sideId,     'TOGGLE_YOUR_TURN', Object.assign({on: true} , cloneData()));
+    notifyPlayer(sideId,     'TOGGLE_YOUR_TURN', Object.assign({on: true},  cloneData()));
     notifyPlayer(1 - sideId, 'TOGGLE_YOUR_TURN', Object.assign({on: false}, cloneData()));
   };
 
@@ -104,6 +104,12 @@ var coreFactory = function (store, options) {
   };
 
   var core = Eventer({
+    canMove: function (sideId) {
+      return fns.canMove(sideId);
+    },
+    inventory: function (sideId) {
+      return fns.inventory(sideId);
+    },
     register: function (sideId) {
       if (registered.find(function (item) { return item.sideId === sideId })) {
         throw new Error('Game Register: players already full');

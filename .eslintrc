@@ -1,0 +1,9 @@
+{
+  "extends": ["standard", "standard-react"],
+  "rules": {
+    "no-template-curly-in-string": "off",
+    "no-multi-spaces": "off",
+    "key-spacing": "off",
+    "semi": "off"
+  }
+}

@@ -1,3 +1,5 @@
+/* global getComputedStyle */
+
 module.exports = {
   setStyle: function ($dom, style) {
     Object.keys(style).forEach(function (key) {

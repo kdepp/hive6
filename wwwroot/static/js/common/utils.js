@@ -1,16 +1,16 @@
 var partial = function (fn) {
-  var len = fn.length,
-    arbitary;
+  var len = fn.length;
+  var arbitary;
 
-  arbitary = function (cur_args, left_arg_cnt) {
+  arbitary = function (curArgs, leftArgCnt) {
     return function () {
       var args = [].slice.apply(arguments);
 
-      if (args.length >= left_arg_cnt) {
-        return fn.apply(null, cur_args.concat(args));
+      if (args.length >= leftArgCnt) {
+        return fn.apply(null, curArgs.concat(args));
       }
 
-      return arbitary(cur_args.concat(args), left_arg_cnt - args.length);
+      return arbitary(curArgs.concat(args), leftArgCnt - args.length);
     }
   };
 
@@ -50,7 +50,7 @@ var x = {
     var len   = Math.min.apply(null, lists.map(function (list) { return list.length; }));
     var ret   = [];
 
-    for (var i = 0; i < len; i ++) {
+    for (var i = 0; i < len; i++) {
       ret.push(fn.apply(null, lists.map(function (list) { return list[i]; })));
     }
 
@@ -87,15 +87,13 @@ var x = {
     return x === y;
   },
 
-  and: function () {
-    var args = [].slice.apply(arguments);
+  and: function (args) {
     return args.reduce(function (prev, cur) {
       return prev && cur;
     }, true);
   },
 
-  or: function () {
-    var args = [].slice.apply(arguments);
+  or: function (args) {
     return args.reduce(function (prev, cur) {
       return prev || cur;
     }, false);
@@ -118,9 +116,9 @@ var x = {
       var args = [].slice.apply(arguments);
       var start, duration;
 
-      start = new Date * 1;
+      start = new Date() * 1;
       var result = fn.apply(null, args);
-      duration = new Date * 1 - start;
+      duration = new Date() * 1 - start;
       console.log(comment, duration, 'ms');
       return result;
     };
@@ -128,7 +126,7 @@ var x = {
 
   sprintf: function (str, data) {
     return Object.keys(data).reduce(function (prev, cur) {
-      return prev.replace(new RegExp("\\$\\{" + cur + "\\}", "g"), data[cur]);
+      return prev.replace(new RegExp('\\$\\{' + cur + '\\}', 'g'), data[cur]);
     }, str);
   },
 
@@ -170,7 +168,7 @@ var x = {
           return result;
         }
 
-        for (var i = 0; i < n; i ++) {
+        for (var i = 0; i < n; i++) {
           if (seq.indexOf(i) === -1) {
             result = helper(n, seq.concat([i]), result);
           }
@@ -212,9 +210,14 @@ var x = {
     };
 
     return Object.keys(object).reduce(function (prev, cur) {
-      return prev || (follow(object[cur], tokens) == value ? object[cur] : null);
+      return prev || (follow(object[cur], tokens) === value ? object[cur] : null);
     }, null);
-  };
+  },
+
+  deepClone: function (data) {
+    // FIXME: should recursively parse data
+    return JSON.parse(JSON.stringify(data));
+  }
 };
 
 module.export = x;

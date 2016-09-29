@@ -3,7 +3,6 @@ var pu = require('../../../common/point_utils');
 var cu = require('../../../common/canvas_utils');
 var du = require('../../../common/dom_utils');
 var CG = require('../../../constant/game');
-var CC = require('../../../constant/coordinate');
 
 var ROLE = CG.ROLE;
 var SIDE = CG.SIDE;
@@ -14,9 +13,9 @@ var toolbarFactory = function (options) {
     game: null,
     samples: null,
     $container: document.body,
-    inventory: x.repeat(2, [1, 3, 3, 2, 2,])
+    inventory: x.repeat(2, [1, 3, 3, 2, 2])
   }, options);
-  var $status, $players;
+  var $players;
   var playerCommonStyle = {
     position: 'absolute',
     top: '15px',
@@ -26,7 +25,7 @@ var toolbarFactory = function (options) {
   };
   var playerConfigs = [
     { style: { left: '15px' }, title: '本方' },
-    { style: { right: '15px'}, title: '对方' }
+    { style: { right: '15px' }, title: '对方' }
   ];
   var offsetX = 30;
   var offsetY = 80;
@@ -97,8 +96,8 @@ var toolbarFactory = function (options) {
     ctx.canvas.width  = parseInt(playerCommonStyle.width, 10);
     ctx.canvas.height = parseInt(playerCommonStyle.height, 10);
 
-    var isYourTurn = sideId === SIDE.ME.ID && opts.game.whiteTurn()
-                  || sideId === SIDE.OP.ID && opts.game.blackTurn();
+    var isYourTurn = sideId === SIDE.ME.ID && opts.game.whiteTurn() ||
+                     sideId === SIDE.OP.ID && opts.game.blackTurn();
 
     du.setStyle(ctx.canvas, {
       backgroundColor: isYourTurn ? 'rgb(203, 249, 186)' : 'transparent'
@@ -134,7 +133,6 @@ var toolbarFactory = function (options) {
       ctx.fillText('x ' + count, centers[roleId][0] + radius + 20, centers[roleId][1] + 10);
       reset();
     });
-
   };
 
   opts.game.on('MOVE', _renderPlayers);

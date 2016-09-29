@@ -5,7 +5,6 @@ var CG = require('../../constant/game');
 
 var d3 = pu.d3;
 var convert = pu.convert;
-var SIDE = CG.SIDE;
 var ROLE = CG.ROLE;
 
 var d3UnitCenterDistance = CC.NS3_UNIT_CENTER_OFFSETS.map(convert.ns3ToD3);
@@ -22,9 +21,11 @@ var aroundDirections = function (d3point, d3Index) {
 
 var brokenAroundDirectionCombinations = function (d3point, d3Index) {
   var existedDirectionIndexes = aroundDirections(d3point, d3Index)
-                                .map(function (direction) { return CC.NS3_UNIT_CENTER_OFFSETS.findIndex(function (d) {
-                                  return d3.samePoint(direction, d);
-                                })})
+                                .map(function (direction) {
+                                  return CC.NS3_UNIT_CENTER_OFFSETS.findIndex(function (d) {
+                                    return d3.samePoint(direction, d);
+                                  });
+                                })
                                 .sort();
 
   console.log('aroundDirection in broken', aroundDirections(d3point, d3Index));
@@ -49,7 +50,6 @@ var brokenAroundDirectionCombinations = function (d3point, d3Index) {
     }
 
     return prev.concat([[cur]]);
-
   }, []);
 
   console.log('grouped', grouped);
@@ -68,7 +68,7 @@ var brokenAroundPointCombinations = function (d3point, d3Index) {
   return !result.length ? [] : x.map(x.map(d3.addPoint(d3point)))(result);
 };
 
-var filterKeepOneHive = time('filterKeepOneHive', function (d3Index, d3origin, availables) {
+var filterKeepOneHive = x.time('filterKeepOneHive', function (d3Index, d3origin, availables) {
   console.log('!!!!!!!!!!!! filterKeepOneHive !!!!!!!!!!');
   var __d3GetPoint = function (data, triple, level) {
     if (!triple)  return null;
@@ -100,8 +100,8 @@ var filterKeepOneHive = time('filterKeepOneHive', function (d3Index, d3origin, a
       if (d3.samePoint(current, target)) return true;
       visited.push(current);
 
-      return or.apply(null, aroundOccupied(current).filter(function (point) {
-        return ! visited.find(function (p) {
+      return x.or(aroundOccupied(current).filter(function (point) {
+        return !visited.find(function (p) {
           return d3.samePoint(p, point);
         });
       }).map(function (point) {
@@ -117,7 +117,7 @@ var filterKeepOneHive = time('filterKeepOneHive', function (d3Index, d3origin, a
   if (brokenCombinations.length === 0)  return availables;
 
   var check = function (d3target) {
-    return and.apply(null, brokenCombinations.map(function (tuple) {
+    return x.and(brokenCombinations.map(function (tuple) {
       console.log('????????????? in brokenCombinations loop ???????????');
       return isConnected(tuple[0], tuple[1], d3target);
     }));
@@ -134,7 +134,7 @@ var directionBesides = function (direction) {
     throw new Error('direction invalid', direction);
   }
 
-  var len = unitCenterDistance.length;
+  var len = d3UnitCenterDistance.length;
   var prevIndex = (index - 1 + len) % len;
   var nextIndex = (index + 1) % len;
 
@@ -168,13 +168,13 @@ var walkOneStep = function (options) {
       var direction  = d3.addPoint(point, d3.negPoint(d3point));
       var besides    = directionBesides(direction);
       var inNarrow   = x.compose(
-        function (list) { return and.apply(null, list); },
+        function (list) { return x.and(list); },
         x.map(
           x.compose(
-            function (info) {return !!info},
+            function (info) { return !!info },
             d3.getPoint(d3Index),
             // should not count basePoint as a narrow boundary
-            function (point) { return d3.samePoint(base, point) ? null : point},
+            function (point) { return d3.samePoint(base, point) ? null : point },
             d3.addPoint(d3point)
           )
         )
@@ -210,7 +210,7 @@ var guess = function (oneStep, d3point, d3Index, options) {
     });
 
     if (list.length === 0)  return result;
-    result = result.concat([{left: step -1, list: list}]);
+    result = result.concat([{left: step - 1, list: list}]);
 
     list.forEach(function (point) {
       result = helper(oneStep, base, point, d3Index, step - 1, result);
@@ -256,21 +256,7 @@ var MOVEMENT = {
       x.flatten(x.pluck('list', result1)),
       x.flatten(x.pluck('list', result2))
     );
-  },
-};
-
-
-var findValue = function (object, path, value) {
-  var tokens = path.split('.');
-  var follow = function (object, keys) {
-    return  keys.reduce(function (prev, cur) {
-      return prev && prev[cur];
-    }, object);
-  };
-
-  return Object.keys(object).reduce(function (prev, cur) {
-    return prev || (follow(object[cur], tokens) == value ? object[cur] : null);
-  }, null);
+  }
 };
 
 /*
@@ -311,7 +297,9 @@ var movement = function (roleId, point, d3Index) {
 
 module.exports = {
   guessPlace: null,
-  guessMove: null,
+  guessMove: function (board, point, roleId) {
+    return movement(roleId, point, board);
+  },
   checkPlace: function () {
     return true;
   },

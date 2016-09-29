@@ -80,7 +80,7 @@ var dnd = function (opts) {
         position: 'fixed',
         zIndex: '9999',
         display: 'block',
-        top:  (ev.clientY - inHandWidth  / 2) + 'px',
+        top: (ev.clientY - inHandWidth  / 2) + 'px',
         left: (ev.clientX - inHandHeight / 2) + 'px'
       });
     }
