@@ -1,3 +1,5 @@
+/* global globalPlayerTypes globalGameId */
+
 var gameFactory = require('./hive/web_game');
 
 var game = gameFactory({
@@ -6,7 +8,9 @@ var game = gameFactory({
   $toolbarContainers: [
     document.getElementById('bar1'),
     document.getElementById('bar2')
-  ]
+  ],
+  playertypes: globalPlayerTypes,
+  gameId: globalGameId
 });
 
 console.log(game);

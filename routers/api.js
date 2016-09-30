@@ -127,7 +127,7 @@ var apiRouter = [
         gameId, userId,
         parseInt(post.type), parseInt(post.sideId),
         parseInt(post.roleId), post.src,
-        post.dst, post.board
+        post.dst, post.coordinates
       )
       .then(
         function (data) {

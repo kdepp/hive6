@@ -4,12 +4,24 @@ block title
   | Game
 
 block content
-  div#canvas_container
-  div#bar1
-  div#bar2
+  if sharePassword
+    p ~~ Share the link and password with your friends. ~~
+    p link: http://localhost:3030/game/#{_id} <br/> password: #{password}
+  else if needPassword
+    form(method='post' action='/game/' + _id + '/join')
+      input(type='password' name='password')
+      input(type='submit' value='Submit')
+  else if !authorized
+    div Sorry, but you are not the players of this game.
+  else
+    div#canvas_container
+    div#bar1
+    div#bar2
 
 block append js
-  script(src='/static/js/dist/web.d.js')
+  if authorized
+    script var globalPlayerTypes = #{JSON.stringify(playertypes)}; var globalGameId = !{JSON.stringify(_id.toString())};
+    script(src='/static/js/dist/web.d.js')
 
 block append css
   style.

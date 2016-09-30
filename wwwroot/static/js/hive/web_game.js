@@ -16,7 +16,8 @@ var gameFactory = function (options) {
     document: null,
     $boardContainer: null,
     $toolbarContainers: [],
-    playertypes: [CG.PLAYER_TYPE.HUMAN.ID, CG.PLAYER_TYPE.HUMAN.ID]
+    playertypes: [CG.PLAYER_TYPE.HUMAN.ID, CG.PLAYER_TYPE.HUMAN.ID],
+    gameId: null
   }, options);
 
   if (opts.playertypes.length !== 2) {
@@ -110,11 +111,11 @@ var gameFactory = function (options) {
     } else if (type === CG.PLAYER_TYPE.REMOTE.ID) {
       player = remotePlayer({
         chair: chair,
-        sideId: sideId
+        gameId: opts.gameId
       });
 
       player.on('REMOTE_LOADED', function (data) {
-
+        core.reset(data.coordinates, data.movements);
       });
     } else if (type === CG.PLAYER_TYPE.AI.ID) {
       player = null;

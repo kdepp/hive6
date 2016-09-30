@@ -10,10 +10,10 @@ var calcInventory = function (board, coordinates, extension) {
   var initial = x.repeat(2, [1, 3, 3, 2, 2]);
 
   coordinates.forEach(function (c) {
-    var info = d3.getPoint(board, c);
+    var info = d3.getPoint(board, c.point);
     initial[info.sideId][info.roleId] --;
 
-    if (initial[info.sideId][info.roleId]) {
+    if (initial[info.sideId][info.roleId] < 0) {
       throw new Error('calcInventory: inventory cannot be negative number');
     }
   });
@@ -98,6 +98,16 @@ var coreFactory = function (store, options) {
     if (isPlace) {
       notifyPlayer(1 - sideId, 'INVENTORY_UPDATE', { inventory: inventories[1 - sideId] });
     }
+  };
+
+  var reset = function (_coordinates, _movements) {
+    movements = _movements || [];
+    setCoordinates(_coordinates);
+    checkWin();
+    inventories = calcInventory(board, coordinates, opts.extension);
+
+    var nextMoveSideId = movements.length === 0 ? 0 : (1 - x.last(movements).sideId);
+    notify(nextMoveSideId, true);
   };
 
   var fns = {
@@ -190,6 +200,7 @@ var coreFactory = function (store, options) {
   };
 
   var core = Eventer({
+    reset: reset,
     coordinates: function () {
       return x.deepClone(coordinates);
     },
@@ -223,10 +234,7 @@ var coreFactory = function (store, options) {
     }
   });
 
-  setCoordinates(data.coordinates);
-  checkWin();
-  inventories = calcInventory(board, coordinates, opts.extension);
-
+  reset(data.coordinates, data.movements);
   return core;
 };
 

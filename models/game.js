@@ -32,7 +32,7 @@ var makeGame = function (userId, sideId, extra) {
     updateTime: new Date(),
     players: sideId ? [null, userId] : [userId, null],
     movements: [],
-    board: [],
+    coordinates: [],
     owner: userId,
     password: '888888',
     status: 0,
@@ -60,15 +60,15 @@ var checkNextSide = function (sideId, movements) {
   return true;
 };
 
-var checkRoleCount = function (sideId, roleId, board) {
+var checkRoleCount = function (sideId, roleId, coordinates) {
   return true;
 };
 
-var checkMovement = function (oldBoard, board, type, sideId, roleId, src, dst) {
+var checkMovement = function (oldCoordinates, coordinates, type, sideId, roleId, src, dst) {
   return true;
 };
 
-var checkWinnerSide = function (sideId, board) {
+var checkWinnerSide = function (sideId, coordinates) {
   return true;
 };
 
@@ -140,7 +140,10 @@ var mGame = {
       players.splice(index, 1, userId);
 
       return db.games.updateById(gameId, {
-        $set: {players: players}
+        $set: {
+          players: players,
+          updateTime: new Date()
+        }
       })
       .then(function (r) {
         return { modifiedCount: r.modifiedCount };
@@ -162,7 +165,7 @@ var mGame = {
         throw ERROR.GAME.END.INVALID_GAME_STATUS;
       }
 
-      if (!checkWinnerSide(winnerSideId, game.board)) {
+      if (!checkWinnerSide(winnerSideId, game.coordinates)) {
         throw ERROR.GAME.END.INVALID_WIN;
       }
 
@@ -177,7 +180,7 @@ var mGame = {
       });
     });
   },
-  move: function (gameId, userId, type, sideId, roleId, src, dst, board) {
+  move: function (gameId, userId, type, sideId, roleId, src, dst, coordinates) {
     if (!gameId) {
       return Promise.reject(ERROR.GAME.GAME_ID_EMPTY);
     }
@@ -206,12 +209,12 @@ var mGame = {
       return Promise.reject(ERROR.GAME.MOVE.INVALID_SOURCE_POSITION);
     }
 
-    if (!board) {
+    if (!coordinates) {
       return Promise.reject(ERROR.GAME.MOVE.BOARD_EMPTY);
     }
 
     try {
-      board = JSON.parse(board);
+      coordinates = JSON.parse(coordinates);
     } catch (e) {
       return Promise.reject(ERROR.GAME.MOVE.BOARD_NOT_JSON);
     }
@@ -226,17 +229,17 @@ var mGame = {
         throw ERROR.GAME.MOVE.NOT_YOUR_TURN;
       }
 
-      if (type === 0 && !checkRoleCount(sideId, roleId, game.board)) {
+      if (type === 0 && !checkRoleCount(sideId, roleId, game.coordinates)) {
         throw ERROR.GAME.MOVE.INVALID_ROLE_COUNT;
       }
 
-      if (!checkMovement(game.board, board, type, sideId, roleId, src, dst)) {
+      if (!checkMovement(game.coordinates, coordinates, type, sideId, roleId, src, dst)) {
         throw ERROR.GAME.MOVE.INVALID_MOVEMENT;
       }
 
       return db.games.updateById(gameId, {
         $push: {movements: makeMovement(type, sideId, roleId, src, dst)},
-        $set:  {board: board, updateTime: new Date()}
+        $set:  {coordinates: coordinates, updateTime: new Date()}
       });
     });
   },
@@ -255,7 +258,7 @@ var mGame = {
       var lastMove = game.movements[game.movements.length - 1];
 
       if (lastMove && lastMove.createTime > timestamp) {
-        return {expired: true, game: game};
+        return Object.assign({expired: true}, game);
       }
 
       return {expired: false};

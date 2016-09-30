@@ -89,30 +89,15 @@ var webRouter = [
     }
   }
   , {
-    method: 'get', url: '/game/:id',
-    callback: [
-      ensureLogin,
-      function (req, res) {
-        var gameId = req.params.id;
-
-        mGame.findById(gameId)
-        .then(
-          function (game) {
-            var data = userAndError(req, game);
-            res.render('game_detail', data);
-          },
-          function (error_code) {
-            console.log(error_code);
-            res.redirect('/games?fr=game_detail');
-          }
-        )
-      }
-    ]
-  }
-  , {
     method: 'get', url: '/games',
     callback: function (req, res) {
       res.render('game');
+    }
+  }
+  , {
+    method: 'get', url: '/game/create',
+    callback: function (req, res) {
+      res.render('game_create');
     }
   }
   , {
@@ -122,7 +107,7 @@ var webRouter = [
 
       if (!user)  return res.redirect('/login');
 
-      var sideId = req.body.sideId;
+      var sideId = parseInt(req.body.sideId);
 
       mGame.create(user._id.toString(), sideId)
       .then(
@@ -130,7 +115,7 @@ var webRouter = [
           res.redirect('/game/' + game._id.toString());
         },
         function (error_code) {
-          console.log(error_code);
+          console.log(u.errText(error_code));
           res.redirect('/?fr=game_create');
         }
       )
@@ -151,11 +136,65 @@ var webRouter = [
           res.redirect('/game/' + gameId);
         },
         function (error_code) {
-          console.log(error_code);
+          console.log(u.errText(error_code));
           res.redirect('/games');
         }
       )
     }
+  }
+  , {
+    method: 'get', url: '/game/:id',
+    callback: [
+      ensureLogin,
+      function (req, res) {
+        var gameId = req.params.id;
+        var userId = req.user._id.toString();
+
+        mGame.findById(gameId)
+        .then(
+          function (game) {
+            var data;
+            var comein = game.players.filter(function (item) { return item === null }).length > 0;
+
+            if (comein) {
+              if (game.players.indexOf(userId) !== -1) {
+                data = Object.assign({
+                  sharePassword: true
+                }, game);
+              } else {
+                data = {
+                  needPassword: true,
+                  _id: game._id.toString()
+                };
+              }
+            } else {
+              if (game.players.indexOf(userId) === -1) {
+                data = {
+                  authorized: false
+                };
+              } else {
+                data = Object.assign({
+                  authorized: true,
+                  sideId: game.players.indexOf(userId),
+                  playertypes: game.players.map(function (player) {
+                    return player === userId ? 0 : 1
+                  })
+                }, game);
+              }
+            }
+
+            console.log(data);
+
+            data = userAndError(req, data);
+            res.render('game', data);
+          },
+          function (error_code) {
+            console.log(error_code);
+            res.redirect('/games?fr=game_detail');
+          }
+        )
+      }
+    ]
   }
 ];
 

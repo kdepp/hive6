@@ -19,17 +19,21 @@ var remotePlayer = function (options) {
 
   var timestamp = 0;
   var timer = setInterval(function () {
-    request.get('/game/' + opts.gameId + '/check?timestamp=' + timestamp)
-           .then(function (result) {
+    request.get('/api/v1/game/' + opts.gameId + '/check?timestamp=' + timestamp)
+           .then(function (obj) {
+             var result = JSON.parse(obj.text);
+
              if (result.error_code !== 0) {
                throw new Error('error_code', data);
              }
 
-             if (timestamp === 0) {
+             if (!result.data.expired)  return;
+
+             if (result.data.coordinates && result.data.movements) {
                // emit board data to board_view
                player.emit('REMOTE_LOADED', {
                  coordinates: result.data.coordinates,
-                 movments: result.data.movements
+                 movements: result.data.movements
                })
              }
 
@@ -60,7 +64,7 @@ var remotePlayer = function (options) {
         throw new Error('Remote Player: coordinates required');
       }
 
-      request.post('/game/' + opts.gameId + '/move')
+      request.post('/api/v1/game/' + opts.gameId + '/move')
              .type('form')
              .send(Object.assign({
                coordinates: JSON.stringify(data.coordinates)
