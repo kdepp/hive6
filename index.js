@@ -8,11 +8,11 @@ var u = require('./common/utils');
 var router = require('./routers');
 var passport = require('./common/passport');
 
-
 var app = express();
 app.set('view engine', 'pug');
 app.set('views', './views');
 
+app.use(express.static('wwwroot'));
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(session({
   secret: 'hive6 coming',

@@ -33,6 +33,8 @@ var toolbarFactory = function (options) {
   var centers = inventory.map(function (c, index) {
     return [offsetX + radius, offsetY + 2 * radius * index];
   });
+  var humanSideIds = [];
+  var isYourTurn = opts.isYourTurn;
 
   var pos2roleId = function (x, y) {
     return centers.findIndex(function (center) {
@@ -49,6 +51,7 @@ var toolbarFactory = function (options) {
       opts.dnd.addSource({
         $dom: $dom,
         onDragStart: function (ev) {
+          if (humanSideIds.indexOf(opts.sideId) === -1) return null;
           if (!opts.canMove())  return null;
 
           var roleId = pos2roleId(ev.localX, ev.localY);
@@ -86,9 +89,6 @@ var toolbarFactory = function (options) {
 
     ctx.canvas.width  = parseInt(playerCommonStyle.width, 10);
     ctx.canvas.height = parseInt(playerCommonStyle.height, 10);
-
-    var isYourTurn = opts.sideId === SIDE.ME.ID ||
-                     opts.sideId === SIDE.OP.ID;
 
     du.setStyle(ctx.canvas, {
       backgroundColor: isYourTurn ? 'rgb(203, 249, 186)' : 'transparent'
@@ -132,6 +132,17 @@ var toolbarFactory = function (options) {
     },
     setInventory: function (_inventory) {
       inventory = _inventory;
+      _renderPlayer();
+    },
+    addHumanControl: function (sideId) {
+      humanSideIds.push(sideId);
+    },
+    enable: function () {
+      isYourTurn = true;
+      _renderPlayer();
+    },
+    disable: function () {
+      isYourTurn = false;
       _renderPlayer();
     }
   });

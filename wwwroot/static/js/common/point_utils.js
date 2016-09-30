@@ -167,8 +167,7 @@ var convert = {
   ns3InfoListToD3: function (points, pinfos) {
     var ret = {};
     points.forEach(function (point, i) {
-      var triple = convert.ns3ToD3(point);
-      d3.setPoint(ret, triple, pinfos[i]);
+      d3.setPoint(ret, point, pinfos[i]);
     });
     return ret;
   }

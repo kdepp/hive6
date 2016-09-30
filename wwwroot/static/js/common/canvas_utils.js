@@ -1,3 +1,5 @@
+/* global Image */
+
 var x = require('./utils');
 var pu = require('./point_utils');
 var CC = require('../constant/coordinate');
@@ -54,7 +56,7 @@ var hexagon = function (ctx, pCenter, radius, isStroke) {
 };
 
 var imgUrl = function (imageName) {
-  return 'img/' + imageName;
+  return '/static/img/pieces/' + imageName;
 };
 
 var calcRect = function (center, sideMax, size) {
@@ -71,7 +73,7 @@ var calcRect = function (center, sideMax, size) {
 var drawChessImage = function (ctx, center, radius, image, size) {
   var sideMax = Math.sqrt(3) * radius * 0.7;
   var rect = calcRect(center, sideMax, size);
-  var $img = CG.ROLE_IMAGES[image];
+  var $img = ROLE_IMAGES[image];
   var draw = function () {
     ctx.drawImage($img, rect.left, rect.top, rect.width, rect.height);
   };
@@ -116,6 +118,18 @@ var marginHexagon = function (ctx, options) {
 
   resetStyle();
 };
+
+var ROLE_IMAGES = Object.keys(CG.ROLE).reduce(function (prev, cur) {
+  ['me', 'op'].forEach(function (type) {
+    var imageName = x.sprintf(CG.ROLE[cur].IMG, {side: type});
+    var $img = new Image();
+
+    $img.src = imgUrl(imageName);
+    $img.addEventListener('load', function () { this.loaded = true; });
+    prev[imageName] = $img;
+  });
+  return prev;
+}, {});
 
 module.exports = {
   setContext: setContext,

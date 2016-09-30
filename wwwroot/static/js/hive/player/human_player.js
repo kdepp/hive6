@@ -35,6 +35,8 @@ var humanPlayer = function (options) {
       return opts.chair.place(roleId, dst);
     }
   });
+
+  return player;
 };
 
 module.exports = humanPlayer;

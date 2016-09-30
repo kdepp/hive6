@@ -61,9 +61,9 @@ var x = {
     return x.zipWith(fn, list1, list2);
   }),
 
-  pluck: function (key, list) {
+  pluck: partial(function (key, list) {
     return list.map(function (item) { return item[key]; });
-  },
+  }),
 
   repeat: function (n, x) {
     var ret = [];
@@ -220,4 +220,4 @@ var x = {
   }
 };
 
-module.export = x;
+module.exports = x;

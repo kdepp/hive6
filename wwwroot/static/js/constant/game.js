@@ -1,8 +1,3 @@
-/* global Image */
-
-var x  = require('../common/utils');
-var cu = require('../common/canvas_utils');
-
 var SIDE = {
   ME: { ID: 0, COLOR: '#f5e8bb' },
   OP: { ID: 1, COLOR: '#666' }
@@ -21,18 +16,6 @@ var ROLE = {
   */
 };
 
-var ROLE_IMAGES = Object.keys(ROLE).reduce(function (prev, cur) {
-  ['me', 'op'].forEach(function (type) {
-    var imageName = x.sprintf(ROLE[cur].IMG, {side: type});
-    var $img = new Image();
-
-    $img.src = cu.imgUrl(imageName);
-    $img.addEventListener('load', function () { this.loaded = true; });
-    prev[imageName] = $img;
-  });
-  return prev;
-}, {});
-
 var PLAYER_TYPE = {
   HUMAN:  { ID: 0 },
   REMOTE: { ID: 1 },
@@ -42,6 +25,5 @@ var PLAYER_TYPE = {
 module.exports = {
   SIDE: SIDE,
   ROLE: ROLE,
-  ROLE_IMAGES: ROLE_IMAGES,
   PLAYER_TYPE: PLAYER_TYPE
 };

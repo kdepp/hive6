@@ -1,6 +1,6 @@
 var x  = require('../../common/utils');
 var pu = require('../../common/point_utils');
-var CC = require('../../constant/coordindate');
+var CC = require('../../constant/coordinate');
 var CG = require('../../constant/game');
 
 var d3 = pu.d3;
@@ -22,7 +22,7 @@ var aroundDirections = function (d3point, d3Index) {
 var brokenAroundDirectionCombinations = function (d3point, d3Index) {
   var existedDirectionIndexes = aroundDirections(d3point, d3Index)
                                 .map(function (direction) {
-                                  return CC.NS3_UNIT_CENTER_OFFSETS.findIndex(function (d) {
+                                  return d3UnitCenterDistance.findIndex(function (d) {
                                     return d3.samePoint(direction, d);
                                   });
                                 })
@@ -54,9 +54,7 @@ var brokenAroundDirectionCombinations = function (d3point, d3Index) {
 
   console.log('grouped', grouped);
 
-  grouped = grouped.map(function (list) {
-    return list[0];
-  });
+  grouped = x.pluck(0, grouped);
 
   return x.combination2(
     grouped.map(function (index) { return d3UnitCenterDistance[index] })
@@ -70,6 +68,7 @@ var brokenAroundPointCombinations = function (d3point, d3Index) {
 
 var filterKeepOneHive = x.time('filterKeepOneHive', function (d3Index, d3origin, availables) {
   console.log('!!!!!!!!!!!! filterKeepOneHive !!!!!!!!!!');
+  console.log('availables, ' , availables);
   var __d3GetPoint = function (data, triple, level) {
     if (!triple)  return null;
 
@@ -113,7 +112,6 @@ var filterKeepOneHive = x.time('filterKeepOneHive', function (d3Index, d3origin,
   };
 
   var brokenCombinations = brokenAroundPointCombinations(d3origin, d3Index);
-
   if (brokenCombinations.length === 0)  return availables;
 
   var check = function (d3target) {
@@ -263,7 +261,7 @@ var MOVEMENT = {
  * Factory for Hive6 Controller
  */
 
-var movement = function (roleId, point, d3Index) {
+var guessMove = function (roleId, point, d3Index) {
   console.log(arguments);
   var result;
 
@@ -292,13 +290,55 @@ var movement = function (roleId, point, d3Index) {
       result = MOVEMENT.WALK({step: 1}, point, d3Index);
   }
 
-  return filterKeepOneHive(d3Index, point, result).map(convert.d3ToNs3);
+  return filterKeepOneHive(d3Index, point, result);
+};
+
+var guessPlace = function (coordinates, sideId) {
+  var onSide = x.partial(function (sideId, coord) {
+    return coord.sideId === sideId;
+  });
+  var findCoord = function (point) {
+    return coordinates.find(function (coord) {
+      return pu.d3.samePoint(coord.point, point);
+    });
+  };
+
+  // no chess on board
+  if (coordinates.length === 0) {
+    return [[0, 0, 0]];
+  }
+
+  // no our side's chess on board
+  if (coordinates.filter(onSide(sideId)).length === 0) {
+    return x.compose(
+      pu.d3.uniquePoints,
+      x.flatten,
+      x.map(pu.d3.around),
+      x.pluck('point')
+    )(coordinates);
+  }
+
+  // normal cases
+  return x.compose(
+    x.filter(function (point) {
+      return !pu.d3.around(point).find(function (sub) {
+        var found = findCoord(sub);
+        return found && found.sideId === 1 - sideId;
+      });
+    }),
+    x.filter(function (point) { return !findCoord(point) }),
+    pu.d3.uniquePoints,
+    x.flatten,
+    x.map(pu.d3.around),
+    x.pluck('point'),
+    x.filter(onSide(sideId))
+  )(coordinates)
 };
 
 module.exports = {
-  guessPlace: null,
+  guessPlace: guessPlace,
   guessMove: function (board, point, roleId) {
-    return movement(roleId, point, board);
+    return guessMove(roleId, point, board);
   },
   checkPlace: function () {
     return true;

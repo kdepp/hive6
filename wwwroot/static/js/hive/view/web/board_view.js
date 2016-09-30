@@ -1,6 +1,7 @@
 var x  = require('../../../common/utils');
 var pu = require('../../../common/point_utils');
 var cu = require('../../../common/canvas_utils');
+var du = require('../../../common/dom_utils');
 var CG = require('../../../constant/game');
 var CC = require('../../../constant/coordinate');
 var Eventer = require('../../../common/event_emitter');
@@ -10,7 +11,7 @@ var SIDE = CG.SIDE;
 
 var boardFactory = function (_opts) {
   var opts = Object.assign({
-    document: null
+    document: null,
     $container: null,
     dnd: null,
     samples: null,
@@ -27,20 +28,16 @@ var boardFactory = function (_opts) {
   var availables    = [];
   var coordinates   = null;
 
-  var update = function (data) {
+  var update = function (data, noRender) {
     coordinates = data.coordinates || [];
+    if (!noRender)  _render();
   };
 
-  update({ coordinates: opts.coordinates });
+  update({ coordinates: opts.coordinates }, true);
   /*
    * Board Helper Functions
    */
-  var transform = x.compose(
-    pu.convert.ns3ToD2,
-    pu.ns3.addPoint(origin),
-    x.map(x.map(x.multi(radius * CC.RADIUS_FACTOR))),
-    pu.convert.d3ToNs3
-  );
+  var transform = null;
 
   var _init = function () {
     var width  = parseInt(du.getStyle(opts.$container, 'width'), 10);
@@ -54,7 +51,14 @@ var boardFactory = function (_opts) {
     });
     ctx    = $canvas.getContext('2d');
     origin = [[width / 2, 0], [height / 2, 0]];
-    $container.appendChild($canvas);
+    opts.$container.appendChild($canvas);
+
+    transform = x.compose(
+      pu.convert.ns3ToD2,
+      pu.ns3.addPoint(origin),
+      x.map(x.map(x.multi(radius * CC.RADIUS_FACTOR))),
+      pu.convert.d3ToNs3
+    );
 
     opts.dnd.addSource({
       $dom: $canvas,
@@ -157,6 +161,8 @@ var boardFactory = function (_opts) {
           });
         }
 
+        availables = [];
+        setTimeout(_render);
         return true;
       }
     });
@@ -206,16 +212,19 @@ var boardFactory = function (_opts) {
     render: function () {
       _render();
     },
-    update: function () {
-      return update();
+    update: function (data) {
+      return update(data);
     },
     setAvailables: function (list) {
       availables = list;
+      _render();
     },
     addHumanControl: function (sideId) {
       humanSideIds.push(sideId);
     }
   });
+
+  return vBoard;
 };
 
 module.exports = boardFactory;

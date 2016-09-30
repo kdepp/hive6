@@ -1,4 +1,3 @@
-
 var coreFactory    = require('./core/hive_core');
 var humanPlayer    = require('./player/human_player');
 var boardFactory   = require('./view/web/board_view');
@@ -42,6 +41,7 @@ var gameFactory = function (options) {
 
   // initialize board view
   var vBoard = boardFactory({
+    document: opts.document,
     $container: opts.$boardContainer,
     dnd: dndInstance,
     game: null,
@@ -57,18 +57,22 @@ var gameFactory = function (options) {
     vBoard.update(data);
   });
 
+  vBoard.init();
+
+  // initialize players
   var participants  = [];
   var vToolbars     = [];
 
-  // initialize players
   opts.playertypes.map(function (type, sideId) {
     var chair = core.register(sideId);
     var vToolbar = toolbarFactory({
+      document: opts.document,
       $container: opts.$toolbarContainers[sideId],
       dnd: dndInstance,
       samples: sampleChesses,
       sideId: sideId,
       inventory: chair.inventory(),
+      isYourTurn: sideId === 0,
       canMove: function () {
         return chair.canMove();
       }
@@ -123,6 +127,8 @@ var gameFactory = function (options) {
     });
 
     vToolbars.push(vToolbar);
+
+    vToolbar.init();
   });
 
   return {

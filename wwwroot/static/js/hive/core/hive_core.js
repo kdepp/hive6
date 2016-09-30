@@ -28,7 +28,7 @@ var coreFactory = function (store, options) {
   var coordinates, board;
 
   var movements = data.movements || [];
-  var inventories = calcInventory(board, coordinates, opts.extension);
+  var inventories = [];
   var registered = [];
 
   var setCoordinates = function (coords) {
@@ -40,6 +40,7 @@ var coreFactory = function (store, options) {
   };
 
   setCoordinates(data.coordinates);
+  inventories = calcInventory(board, coordinates, opts.extension);
 
   var stepCount = function () {
     return movements.length;
@@ -84,7 +85,7 @@ var coreFactory = function (store, options) {
     },
     possiblePlacement: function (sideId) {
       if (!fns.canMove(sideId)) return null;
-      return m.guessPlace(board, sideId);
+      return m.guessPlace(coordinates, sideId);
     },
     possibleMovement: function (sideId, src) {
       if (!fns.canMove(sideId)) return null;
@@ -116,6 +117,16 @@ var coreFactory = function (store, options) {
         point:  dst
       });
       setCoordinates(coordinates);
+
+      // update movements
+      movements.push({
+        type: 0,
+        sideId: sideId,
+        roleId: roleId,
+        src: null,
+        dst: dst
+      });
+
       notify(1 - sideId, true);
     },
     move: function (sideId, src, dst) {
@@ -135,11 +146,24 @@ var coreFactory = function (store, options) {
       coord.point  = dst;
       coord.zIndex = zIndex;
       setCoordinates(coordinates);
+
+      // update movements
+      movements.push({
+        type: 1,
+        sideId: sideId,
+        roleId: coord.roleId,
+        src: src,
+        dst: dst
+      });
+
       notify(1 - sideId, false);
     }
   };
 
   var core = Eventer({
+    coordinates: function () {
+      return x.deepClone(coordinates);
+    },
     canMove: function (sideId) {
       return fns.canMove(sideId);
     },

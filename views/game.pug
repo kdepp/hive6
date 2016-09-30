@@ -1,0 +1,31 @@
+extends frame.pug
+
+block title
+  | Game
+
+block content
+  div#canvas_container
+  div#bar1
+  div#bar2
+
+block append js
+  script(src='/static/js/dist/web.d.js')
+
+block append css
+  style.
+    #bar1 {
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    #bar2 {
+      position: absolute;
+      top: 0;
+      right: 0;
+    }
+
+    #canvas_container {
+      width: 100%;
+      height: 400px;
+    }

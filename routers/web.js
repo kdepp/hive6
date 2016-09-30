@@ -4,7 +4,6 @@ var ERROR = require('../common/error_code');
 var mUser = require('../models/user');
 var mGame = require('../models/game');
 var u = require('../common/utils');
-var apiRouter = require('./api');
 
 var ensureLogin = ensureLoggedIn('/login');
 
@@ -26,7 +25,6 @@ var webRouter = [
   {
     method: 'get', url: '/',
     callback: function (req, res) {
-      var user = req.user;
       var data = userAndError(req)
       res.render('home', data);
     }
@@ -34,10 +32,7 @@ var webRouter = [
   , {
     method: 'get', url: '/login',
     callback: function (req, res) {
-      var user  = req.user;
-      var error = req.flash('error');
       var data  = userAndError(req);
-
       res.render('login', data);
     }
   }
@@ -80,6 +75,7 @@ var webRouter = [
       .then(
         function (user) {
           req.login(user, function (err) {
+            if (err)  console.log(err);
             res.redirect('/');
           });
         },
@@ -114,7 +110,7 @@ var webRouter = [
   , {
     method: 'get', url: '/games',
     callback: function (req, res) {
-      res.send('games');
+      res.render('game');
     }
   }
   , {
@@ -124,8 +120,7 @@ var webRouter = [
 
       if (!user)  return res.redirect('/login');
 
-      var post = req.body;
-      var sideId = req.sideId;
+      var sideId = req.body.sideId;
 
       mGame.create(user._id.toString(), sideId)
       .then(
