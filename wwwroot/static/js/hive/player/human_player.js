@@ -15,9 +15,9 @@ var humanPlayer = function (options) {
       var availables = opts.chair.possibleMovement(src);
       player.emit('UPDATE_POSSIBLE_MOVE', {availables: availables});
     },
-    mayPlace: function () {
+    mayPlace: function (roleId) {
       if (!opts.chair.canMove()) return;
-      var availables = opts.chair.possiblePlacement();
+      var availables = opts.chair.possiblePlacement(roleId);
       player.emit('UPDATE_POSSIBLE_MOVE', {availables: availables});
     },
     prepareMove: function () {

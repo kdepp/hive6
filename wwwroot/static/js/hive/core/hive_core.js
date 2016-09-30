@@ -107,14 +107,14 @@ var coreFactory = function (store, options) {
       if (stepCount() === 0)        return sideId === 0;
       return x.last(movements).sideId === 1 - sideId;
     },
-    possiblePlacement: function (sideId) {
+    possiblePlacement: function (sideId, roleId) {
       if (!fns.canMove(sideId)) return null;
-      return m.guessPlace(coordinates, sideId);
+      return m.guessPlace(coordinates, movements, sideId, roleId);
     },
     possibleMovement: function (sideId, src) {
       if (!fns.canMove(sideId)) return null;
       var roleId = d3.getPoint(board, src).roleId;
-      return m.guessMove(board, src, roleId);
+      return m.guessMove(board, coordinates, movements, src, sideId, roleId);
     },
     place: function (sideId, roleId, dst) {
       if (!fns.canMove(sideId)) {

@@ -68,7 +68,7 @@ var brokenAroundPointCombinations = function (d3point, d3Index) {
 
 var filterKeepOneHive = x.time('filterKeepOneHive', function (d3Index, d3origin, availables) {
   console.log('!!!!!!!!!!!! filterKeepOneHive !!!!!!!!!!');
-  console.log('availables, ' , availables);
+  console.log('availables, ', availables);
   var __d3GetPoint = function (data, triple, level) {
     if (!triple)  return null;
 
@@ -261,61 +261,76 @@ var MOVEMENT = {
  * Factory for Hive6 Controller
  */
 
-var guessMove = function (roleId, point, d3Index) {
-  console.log(arguments);
+var guessMove = function (board, coordinates, movements, point, sideId, roleId) {
   var result;
+  var hasBee = coordinates.find(function (coord) {
+    return coord.sideId === sideId && coord.roleId === CG.ROLE.BEE.ID;
+  });
+
+  // No bee onboard, no movement allowed
+  if (!hasBee)  return [];
 
   switch (roleId) {
     case ROLE.BEE.ID:
-      result = MOVEMENT.WALK({step: 1}, point, d3Index);
+      result = MOVEMENT.WALK({step: 1}, point, board);
       break;
 
     case ROLE.ANT.ID:
-      result = MOVEMENT.WALK({step: Infinity}, point, d3Index);
+      result = MOVEMENT.WALK({step: Infinity}, point, board);
       break;
 
     case ROLE.SPIDER.ID:
-      result = MOVEMENT.WALK({step: 3, exact: true}, point, d3Index);
+      result = MOVEMENT.WALK({step: 3, exact: true}, point, board);
       break;
 
     case ROLE.GRASSHOPPER.ID:
-      result = MOVEMENT.JUMP({}, point, d3Index);
+      result = MOVEMENT.JUMP({}, point, board);
       break;
 
     case ROLE.BEETLE.ID:
-      result = MOVEMENT.CLIMB({}, point, d3Index);
+      result = MOVEMENT.CLIMB({}, point, board);
       break;
 
     default:
-      result = MOVEMENT.WALK({step: 1}, point, d3Index);
+      result = MOVEMENT.WALK({step: 1}, point, board);
   }
 
-  return filterKeepOneHive(d3Index, point, result);
+  return filterKeepOneHive(board, point, result);
 };
 
-var guessPlace = function (coordinates, sideId) {
-  var onSide = x.partial(function (sideId, coord) {
-    return coord.sideId === sideId;
+var guessPlace = function (coordinates, movements, sideId, roleId) {
+  var onSide = x.partial(function (sideId, obj) {
+    return obj.sideId === sideId;
   });
   var findCoord = function (point) {
     return coordinates.find(function (coord) {
       return pu.d3.samePoint(coord.point, point);
     });
   };
+  var hasBee;
 
   // no chess on board
-  if (coordinates.length === 0) {
-    return [[0, 0, 0]];
+  if (movements.length === 0) {
+    return roleId === CG.ROLE.BEE.ID ? [] : [[0, 0, 0]]
   }
 
   // no our side's chess on board
-  if (coordinates.filter(onSide(sideId)).length === 0) {
-    return x.compose(
+  if (movements.filter(onSide(sideId)).length === 0) {
+    return roleId === CG.ROLE.BEE.ID ? [] : x.compose(
       pu.d3.uniquePoints,
       x.flatten,
       x.map(pu.d3.around),
       x.pluck('point')
     )(coordinates);
+  }
+
+  // must place bee onboard in 4 steps
+  if ([6, 7].indexOf(movements.length) !== -1) {
+    hasBee = coordinates.find(function (coord) {
+      return coord.roleId === CG.ROLE.BEE.ID && coord.sideId === movements.length % 2;
+    });
+
+    if (!hasBee && roleId !== CG.ROLE.BEE.ID)  return [];
   }
 
   // normal cases
@@ -337,9 +352,7 @@ var guessPlace = function (coordinates, sideId) {
 
 module.exports = {
   guessPlace: guessPlace,
-  guessMove: function (board, point, roleId) {
-    return guessMove(roleId, point, board);
-  },
+  guessMove: guessMove,
   checkPlace: function () {
     return true;
   },
