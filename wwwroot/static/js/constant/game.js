@@ -22,8 +22,16 @@ var PLAYER_TYPE = {
   AI:     { ID: 2 }
 };
 
+var GAME_STATUS = {
+  INITIAL: 0,
+  IN_PROGRESS: 1,
+  OVER: 2,
+  ERROR: -1
+};
+
 module.exports = {
   SIDE: SIDE,
   ROLE: ROLE,
-  PLAYER_TYPE: PLAYER_TYPE
+  PLAYER_TYPE: PLAYER_TYPE,
+  GAME_STATUS: GAME_STATUS
 };

@@ -2,6 +2,7 @@ var Eventer = require('../../common/event_emitter');
 var x = require('../../common/utils');
 var pu = require('../../common/point_utils');
 var m = require('./hive_movement');
+var CG = require('../../constant/game');
 
 var d3 = pu.d3;
 
@@ -30,6 +31,7 @@ var coreFactory = function (store, options) {
   var movements = data.movements || [];
   var inventories = [];
   var registered = [];
+  var status = null;
 
   var setCoordinates = function (coords) {
     coordinates = coords || [];
@@ -37,10 +39,31 @@ var coreFactory = function (store, options) {
       x.pluck('point', coordinates),
       coordinates
     );
+    status = coordinates.length > 0 ? CG.GAME_STATUS.IN_PROGRESS : CG.GAME_STATUS.INITIAL;
   };
 
-  setCoordinates(data.coordinates);
-  inventories = calcInventory(board, coordinates, opts.extension);
+  var checkWin = function () {
+    var winners = [];
+
+    [0, 1].forEach(function (sideId) {
+      var bee = coordinates.find(function (coord) {
+        return coord.roleId === CG.ROLE.BEE.ID && coord.sideId === sideId;
+      });
+
+      if (!bee) return;
+
+      var isBeeSurrounded = pu.d3.around(bee.point).filter(function (point) {
+        return !pu.d3.getPoint(board, point);
+      }).length === 0;
+
+      if (isBeeSurrounded)  winners.push(1 - sideId);
+    });
+
+    if (winners.length > 0) {
+      status = CG.GAME_STATUS.OVER;
+      notifyBoard('GAME_OVER', { winner: winners.length > 1 ? winners : winners[0] });
+    }
+  };
 
   var stepCount = function () {
     return movements.length;
@@ -79,6 +102,7 @@ var coreFactory = function (store, options) {
       return inventories[sideId];
     },
     canMove: function (sideId) {
+      if ([CG.GAME_STATUS.IN_PROGRESS, CG.GAME_STATUS.INITIAL].indexOf(status) === -1)  return false;
       if (registered.length !== 2)  return false;
       if (stepCount() === 0)        return sideId === 0;
       return x.last(movements).sideId === 1 - sideId;
@@ -128,6 +152,7 @@ var coreFactory = function (store, options) {
       });
 
       notify(1 - sideId, true);
+      checkWin();
     },
     move: function (sideId, src, dst) {
       if (!fns.canMove(sideId)) {
@@ -157,6 +182,7 @@ var coreFactory = function (store, options) {
       });
 
       notify(1 - sideId, false);
+      checkWin();
     }
   };
 
@@ -193,6 +219,10 @@ var coreFactory = function (store, options) {
       return obj;
     }
   });
+
+  setCoordinates(data.coordinates);
+  checkWin();
+  inventories = calcInventory(board, coordinates, opts.extension);
 
   return core;
 };

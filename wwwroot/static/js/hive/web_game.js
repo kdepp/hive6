@@ -57,6 +57,10 @@ var gameFactory = function (options) {
     vBoard.update(data);
   });
 
+  core.on('GAME_OVER', function (data) {
+    alert(JSON.stringify(data));
+  })
+
   vBoard.init();
 
   // initialize players
