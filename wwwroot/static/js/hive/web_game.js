@@ -1,5 +1,6 @@
 var coreFactory    = require('./core/hive_core');
 var humanPlayer    = require('./player/human_player');
+var remotePlayer   = require('./player/remote_player');
 var boardFactory   = require('./view/web/board_view');
 var toolbarFactory = require('./view/web/toolbar_view');
 var sampleChesses  = require('./view/web/sample_chesses');
@@ -85,7 +86,8 @@ var gameFactory = function (options) {
 
     if (type === CG.PLAYER_TYPE.HUMAN.ID) {
       player = humanPlayer({
-        chair: chair
+        chair: chair,
+        sideId: sideId
       });
 
       player.on('UPDATE_POSSIBLE_MOVE', function (data) {
@@ -106,7 +108,14 @@ var gameFactory = function (options) {
       vBoard.addHumanControl(sideId);
       vToolbar.addHumanControl(sideId);
     } else if (type === CG.PLAYER_TYPE.REMOTE.ID) {
-      player = null;
+      player = remotePlayer({
+        chair: chair,
+        sideId: sideId
+      });
+
+      player.on('REMOTE_LOADED', function (data) {
+
+      });
     } else if (type === CG.PLAYER_TYPE.AI.ID) {
       player = null;
     }

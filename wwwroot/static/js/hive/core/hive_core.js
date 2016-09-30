@@ -22,7 +22,10 @@ var calcInventory = function (board, coordinates, extension) {
 };
 
 var coreFactory = function (store, options) {
-  var data = store || {};
+  var data = Object.assign({
+    movements: null,
+    coordinates: null
+  }, store);
   var opts = Object.assign({
     extension: false
   }, options);

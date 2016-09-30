@@ -1,3 +1,5 @@
+/* eslint camelcase: 0, comma-style: 0, object-property-newline: 0 */
+
 var ERROR = require('../common/error_code');
 var mUser = require('../models/user');
 var mGame = require('../models/game');

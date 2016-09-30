@@ -1,3 +1,5 @@
+/* eslint camelcase: 0, comma-style: 0, object-property-newline: 0 */
+
 var ensureLoggedIn = require('connect-ensure-login').ensureLoggedIn;
 var passport = require('../common/passport');
 var ERROR = require('../common/error_code');

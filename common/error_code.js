@@ -50,6 +50,7 @@ module.exports = {
       INVALID_DESTINATION_POSITION: inc(),
       INVALID_SOURCE_POSITION: inc(),
       BOARD_EMPTY: inc(),
+      BOARD_NOT_JSON: inc(),
       USER_NOT_THE_PLAYER: inc(),
       NOT_YOUR_TURN: inc(),
       INVALID_ROLE_COUNT: inc(),

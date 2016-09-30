@@ -19,9 +19,9 @@ var checkPosition = function (pos) {
   if (!pos) return false;
   if (pos.length !== 3) return false;
 
-  pos.forEach(function (x) {
-    if (typeof x !== 'number')  return false;
-  });
+  // for (var i = 0, len = pos.length; i < len; i++) {
+  //   if (typeof pos[i] !== 'number')  return false;
+  // }
 
   return true;
 };
@@ -31,7 +31,7 @@ var makeGame = function (userId, sideId, extra) {
     createTime: new Date(),
     updateTime: new Date(),
     players: sideId ? [null, userId] : [userId, null],
-    movement: [],
+    movements: [],
     board: [],
     owner: userId,
     password: '888888',
@@ -41,17 +41,22 @@ var makeGame = function (userId, sideId, extra) {
 };
 
 var makeMovement = function (type, sideId, roleId, src, dst) {
+  var convertPosition = function (point) {
+    if (!Array.isArray(point))  return null;
+    return point.map(function (n) { return parseInt(n) });
+  };
+
   return {
     type: type,
     sideId: sideId,
     roleId: roleId,
-    src: src,
-    dst: dst,
+    src: convertPosition(src),
+    dst: convertPosition(dst),
     createTime: new Date()
   };
 };
 
-var checkNextSide = function (sideId, movement) {
+var checkNextSide = function (sideId, movements) {
   return true;
 };
 
@@ -121,7 +126,7 @@ var mGame = {
         throw ERROR.GAME.JOIN.PLAYERS_FULL;
       }
 
-      if (game.players && game.players.filter(id).length == 0) {
+      if (game.players && game.players.filter(id).length === 0) {
         throw ERROR.GAME.JOIN.NO_OPPONENT;
       }
 
@@ -205,13 +210,19 @@ var mGame = {
       return Promise.reject(ERROR.GAME.MOVE.BOARD_EMPTY);
     }
 
+    try {
+      board = JSON.parse(board);
+    } catch (e) {
+      return Promise.reject(ERROR.GAME.MOVE.BOARD_NOT_JSON);
+    }
+
     return mGame.findById(gameId)
     .then(function (game) {
       if (game.players[sideId] !== userId) {
         throw ERROR.GAME.MOVE.USER_NOT_THE_PLAYER;
       }
 
-      if (!checkNextSide(sideId, game.movement)) {
+      if (!checkNextSide(sideId, game.movements)) {
         throw ERROR.GAME.MOVE.NOT_YOUR_TURN;
       }
 
@@ -220,11 +231,11 @@ var mGame = {
       }
 
       if (!checkMovement(game.board, board, type, sideId, roleId, src, dst)) {
-        throw ERROR,GAME.MOVE.INVALID_MOVEMENT;
+        throw ERROR.GAME.MOVE.INVALID_MOVEMENT;
       }
 
       return db.games.updateById(gameId, {
-        $push: {movement: makeMovement(type, sideId, roleId, src, dst)},
+        $push: {movements: makeMovement(type, sideId, roleId, src, dst)},
         $set:  {board: board, updateTime: new Date()}
       });
     });
@@ -234,13 +245,14 @@ var mGame = {
       return Promise.reject(ERROR.GAME.CHECK.TIMESTAMP_EMPTY);
     }
 
+    console.log('in checkExpire');
     return mGame.findById(gameId)
     .then(function (game) {
       if (game.players.indexOf(userId) === -1) {
         throw ERROR.GAME.USER_UNAUTHORIZED;
       }
 
-      var lastMove = game.movement[game.movement.length - 1];
+      var lastMove = game.movements[game.movements.length - 1];
 
       if (lastMove && lastMove.createTime > timestamp) {
         return {expired: true, game: game};
