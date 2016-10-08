@@ -1,4 +1,4 @@
-/* global WebSocket */
+var io = require('socket.io-client');
 
 var request = require('superagent');
 var x = require('../../common/utils');
@@ -9,48 +9,36 @@ var checkWebSocket = function () {
 };
 
 var useWebSocket = function (gameId, callback) {
-  var ws = new WebSocket('ws://localhost:3030/socketserver');
-
-  ws.onmessage = function (ev) {
-    var msg;
-
-    try {
-      msg = JSON.parse(ev.data);
-    } catch (e) {
-      console.log('useWebSocket: parse json data error');
-      console.log(e.stack);
-      return;
+  var socket = io('http://localhost:3000');
+  var onLoad = x.partial(function (isInitial, data) {
+    if (data.coordinates && data.movements) {
+      // emit board data to board_view
+      callback && callback({
+        coordinates: data.coordinates,
+        movements: data.movements
+      });
     }
+  });
 
-    if (msg.type === 'NEW_MOVE') {
-      if (msg.data.coordinates && msg.data.movements) {
-        // emit board data to board_view
-        callback && callback({
-          coordinates: msg.data.coordinates,
-          movements: msg.data.movements
-        });
-      }
-    } else if (msg.type === 'GAME_OVER') {
-      // do something when game over
-    }
-  };
+  socket.on('UPDATED', onLoad(false));
+  socket.on('LOADED', onLoad(true));
+  socket.on('connect', function () {
+    socket.emit('JOIN', gameId);
+  });
 
   return {
     post: function (gameId, lastMove, coordinates) {
-      // dosomething
-      if (!ws) {
+      if (!socket) {
         throw new Error('Failed to post msg. WebSocket is already closed.')
       }
 
-      ws.send(JSON.stringify({
-        type: 'MOVE',
-        data: Object.assign({
-          coordinates: coordinates
-        }, lastMove)
-      }));
+      socket.emit('NEW_MOVE', Object.assign({
+        gameId: gameId,
+        coordinates: JSON.stringify(coordinates)
+      }, lastMove));
     },
     destroy: function () {
-      ws.close();
+      // socket.close();
     }
   };
 };
@@ -115,10 +103,10 @@ var connect = function (opts) {
 
   if (checkWebSocket()) {
     // use websocket
-    ret = useWebSocket();
+    ret = useWebSocket(opts.gameId, opts.onUpdate);
   } else {
     // user http interval pull
-    ret = httpIntervalPull(opts.gameId, opts.checkInterval, opts.pullCallback);
+    ret = httpIntervalPull(opts.gameId, opts.checkInterval, opts.onUpdate);
   }
 
   return ret;
@@ -131,6 +119,8 @@ var remotePlayer = function (options) {
     checkInterval: 5000
   }, options);
 
+  var initialMovementCount;
+
   if (!opts.chair) {
     throw new Error('Remote Player: chair is required');
   }
@@ -142,6 +132,10 @@ var remotePlayer = function (options) {
   var player = Eventer({
     prepareMove: function (data) {
       var lastMove = x.last(data.movements);
+
+      if (data.movements.length === initialMovementCount) {
+        return;
+      }
 
       if (!lastMove) {
         throw new Error('Remote Player: movements should not be empty')
@@ -162,7 +156,11 @@ var remotePlayer = function (options) {
   });
 
   var connection = connect(Object.assign({
-    pullCallback: function (data) {
+    onUpdate: function (data) {
+      if (initialMovementCount === undefined) {
+        initialMovementCount = data.movements.length;
+      }
+
       player.emit('REMOTE_LOADED', data);
     },
     socketCallback: function () {
