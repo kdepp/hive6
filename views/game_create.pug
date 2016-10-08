@@ -1,0 +1,11 @@
+extends frame.pug
+
+block title
+  | Create a new game
+
+block content
+  form(method='post' action='/game/create')
+    select(name='sideId')
+      option(value='0') 执白先行
+      option(value='1') 执黑后行
+    input(type='submit' value='开一局')
