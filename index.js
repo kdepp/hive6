@@ -7,14 +7,10 @@ var flash = require('connect-flash');
 var u = require('./common/utils');
 var router = require('./routers');
 var passport = require('./common/passport');
+var io = require('./websocket/io');
 
 var app = express();
-app.set('view engine', 'pug');
-app.set('views', './views');
-
-app.use(express.static('wwwroot'));
-app.use(bodyParser.urlencoded({extended: true}));
-app.use(session({
+var sessionMiddleWare = session({
   secret: 'hive6 coming',
   resave: false,
   saveUninitialized: false,
@@ -22,7 +18,16 @@ app.use(session({
   store: new MongoStore({
     url: 'mongodb://localhost/hive6'
   })
-}));
+});
+
+io({ middlewares: [sessionMiddleWare] });
+
+app.set('view engine', 'pug');
+app.set('views', './views');
+
+app.use(express.static('wwwroot'));
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(sessionMiddleWare);
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());
