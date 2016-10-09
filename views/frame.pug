@@ -5,13 +5,36 @@ html
       block title
       |  - Hive6
     block css
+      link(rel='stylesheet' href='/static/css/frame.css')
   body
     header
       block header
-        p
+        a.logo
+          img(src='/static/img/logo.png' alt='昆虫棋网')
+        ul.menu
+          li
+            a(href='/game/create') 新开一局
+          li
+            a(href='/rules') 游戏规则
+          li
+            a(href='/games') 棋局复盘
+          li
+            a(href='/me/games') 我的棋局
+        div.userinfo
+          if isLogined
+            a(href='/logout') #{username}, 退出
+          else
+            a(href='/login') 登录
+
     section
       block content
+
     footer
       block footer
-        p 
+        ul
+          li
+            a(href='/about') 关于昆虫棋网
+          li
+            span 2016 &copy;昆虫棋网
+
     block js

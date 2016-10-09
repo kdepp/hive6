@@ -3,22 +3,35 @@ extends frame.pug
 block title
   | Register
 
+block append css
+  link(rel='stylesheet' href='/static/css/login.css')
+
 block content
-  if error
-    p #{error.msg}
   form(method='post' action='/register' onsubmit='return check()')
-    input#username(type='text' name='username')
-    input#password(type='password' name='password')
-    input#retype(type='password' name='retype')
-    input(type='submit' name='Register')
+    div.hexagon-box.login-box
+      h1 账号注册
+      div.error-box
+        if error
+          p.error 您的信息填写缺失，或密码不够复杂
+      div.form-row
+        input#username.inputbox(type='text' name='username' placeholder='用户名')
+      div.form-row
+        input#password.inputbox(type='password' name='password' placeholder='密码 (须含英文数字和符号)')
+      div.form-row
+        input#retype.inputbox(type='password' name='retype' placeholder='密码 again')
+      div.form-row
+        input.btn(type='submit' name='Register')
+      div.form-row
+        a(href='/login') 已有账号？点此登录
+
   script.
+    document.getElementById('username').focus();
     function check() {
-      console.log('go')
       var $p1 = document.getElementById('password');
       var $p2 = document.getElementById('retype');
 
       if ($p1.value !== $p2.value)  {
-        alert('password not equal');
+        alert('两次密码输入不同');
         return false;
       }
 

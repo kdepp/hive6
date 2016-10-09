@@ -183,8 +183,6 @@ var webRouter = [
               }
             }
 
-            console.log(data);
-
             data = userAndError(req, data);
             res.render('game', data);
           },

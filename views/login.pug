@@ -3,15 +3,24 @@ extends frame.pug
 block title
   | Login
 
+block append css
+  link(rel='stylesheet' href='/static/css/login.css')
+
 block content
-  h1
-    span Hello #{username}
-    if isLogined
-      a(href='/logout') Logout
-  if error
-    p #{error.msg}
   form(method='post' action='/login')
-    input(type='text' name='username')
-    input(type='password' name='password')
-    input(type='submit' name='Login')
-    a(href='/register') Register
+    div.hexagon-box.login-box
+      h1 账号登录
+      div.error-box
+        if error
+          p.error 您的账号与密码不符、或账号根本不存在
+      div.form-row
+        input#username.inputbox(type='text' name='username' placeholder='用户名')
+      div.form-row
+        input#password.inputbox(type='password' name='password' placeholder='密码')
+      div.form-row
+        input.btn(type='submit' name='Login')
+      div.form-row
+        a(href='/register') 没有账号？点此免费注册
+
+  script.
+    document.getElementById('username').focus();

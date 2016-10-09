@@ -1,0 +1,68 @@
+
+.inputbox {
+  box-sizing: border-box;
+  padding: 0 15px;
+  width: 260px;
+  height: 40px;
+  border: 1px solid rgba(0, 0, 0, 0.5);
+  border-radius: 4px;
+  background-color: #212224;
+  color: #555;
+  font-size: 20px;
+  outline: none;
+}
+
+  .inputbox:focus {
+    background-color: #2d2f31;
+    color: #dbe6ec;
+  }
+
+.btn {
+  box-sizing: border-box;
+  width: 260px;
+  height: 40px;
+  border: 0;
+  border-radius: 4px;
+  text-align: center;
+  background-color: #006ab3;
+  color: #fff;
+  font-size: 20px;
+  outline: none;
+}
+
+  .btn:hover {
+    background-color: #0089e6;
+  }
+
+.form-row {
+  margin: 15px 0;
+}
+
+.hexagon-box {
+  margin: 0 auto;
+  width: 641px;
+  height: 563px;
+  background: url(/static/img/hexagon.png) no-repeat;
+}
+
+  .hexagon-box h1 {
+    padding-top: 25px;
+    text-align: center;
+    font-size: 40px;
+    color: #dbe6ec;
+  }
+
+  .hexagon-box .error-box {
+    margin-left: 200px;
+    width: 100%;
+    height: 30px;
+  }
+
+    .hexagon-box .error-box .error {
+      margin: 0;
+      color: #8b0037;
+    }
+
+  .hexagon-box .form-row {
+    margin: 30px 0 30px 200px;
+  }
