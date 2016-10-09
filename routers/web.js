@@ -141,7 +141,8 @@ var webRouter = [
         },
         function (error_code) {
           console.log(u.errText(error_code));
-          res.redirect('/games');
+          req.flash('error_code', error_code);
+          res.redirect('/game/' + gameId);
         }
       )
     }
