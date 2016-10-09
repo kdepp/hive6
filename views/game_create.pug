@@ -3,9 +3,17 @@ extends frame.pug
 block title
   | Create a new game
 
+block append css
+  link(rel='stylesheet' href='/static/css/login.css')
+
 block content
   form(method='post' action='/game/create')
-    select(name='sideId')
-      option(value='0') 执白先行
-      option(value='1') 执黑后行
-    input(type='submit' value='开一局')
+    div.hexagon-box.login-box
+      h1 新开棋局
+      div.error-box
+      div.form-row
+        select.select(name='sideId')
+          option(value='0') 执白先行
+          option(value='1') 执黑后行
+      div.form-row
+        input.btn(type='submit' value='开一局')

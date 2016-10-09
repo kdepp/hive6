@@ -9,7 +9,7 @@ html
   body
     header
       block header
-        a.logo
+        a.logo(href='/')
           img(src='/static/img/logo.png' alt='昆虫棋网')
         ul.menu
           li
@@ -26,7 +26,7 @@ html
           else
             a(href='/login') 登录
 
-    section
+    section.main
       block content
 
     footer

@@ -1,0 +1,14 @@
+
+.msg-box {
+  margin: 30px auto 0;
+  padding: 50px;
+  width: 500px;
+  border: 1px solid rgba(0,0,0,0.5);
+  background-color: #2c362f;
+  color: #dbe6ec;
+  line-height: 25px;
+}
+
+.orange {
+  color: #dc950f;
+}

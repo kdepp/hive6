@@ -101,7 +101,7 @@ var webRouter = [
       function (req, res) {
         var data = userAndError(req)
         res.render('game_create', data);
-    }
+      }
     ]
   }
   , {
