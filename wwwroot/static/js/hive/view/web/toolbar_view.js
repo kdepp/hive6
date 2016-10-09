@@ -20,14 +20,11 @@ var toolbarFactory = function (options) {
   var $canvas   = null;
   var ctx       = null;
   var playerCommonStyle = {
-    position: 'absolute',
-    top: '15px',
     width: '150px',
-    height: '560px',
-    border: '1px solid #ccc'
+    height: '560px'
   };
-  var playerConfig = { style: { left: '15px' }, title: '方方' };
-  var offsetX = 30;
+  var playerConfig = { style: { left: '15px' }, title: opts.sideId ? '黑棋' : '白棋' };
+  var offsetX = 20;
   var offsetY = 80;
   var radius = 30;
   var centers = inventory.map(function (c, index) {
@@ -90,17 +87,15 @@ var toolbarFactory = function (options) {
     ctx.canvas.width  = parseInt(playerCommonStyle.width, 10);
     ctx.canvas.height = parseInt(playerCommonStyle.height, 10);
 
-    du.setStyle(ctx.canvas, {
-      backgroundColor: isYourTurn ? 'rgb(203, 249, 186)' : 'transparent'
-    });
+    opts.$container.className = isYourTurn ? 'bar on' : 'bar off';
 
     // Render Title
     reset = cu.setContext(ctx, [
-      ['font', '20px serif'],
-      ['fillStyle', '#333']
+      ['font', '20px MicrosoftYaHei'],
+      ['fillStyle', '#fff']
     ]);
 
-    ctx.fillText(playerConfig.title, 10, 30);
+    ctx.fillText(playerConfig.title, 50, 30);
     reset();
 
     // Render Available Chess
@@ -118,10 +113,10 @@ var toolbarFactory = function (options) {
 
       var reset = cu.setContext(ctx, [
         ['fillStyle', count > 0 ? '#f00' : '#ccc'],
-        ['font', ' 20px bold']
+        ['font', '20px MicrosoftYaHei']
       ]);
 
-      ctx.fillText('x ' + count, centers[roleId][0] + radius + 20, centers[roleId][1] + 10);
+      ctx.fillText('x ' + count, centers[roleId][0] + radius + 20, centers[roleId][1] + 5);
       reset();
     });
   };

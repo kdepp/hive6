@@ -12,3 +12,39 @@
 .orange {
   color: #dc950f;
 }
+
+.game-box {
+  overflow: hidden;
+  margin-top: 25px;
+}
+
+.bar {
+  border: 1px solid rgba(0, 0, 0, 0.5);
+  border-radius: 4px;
+}
+
+  .bar.on {
+    background: orange;
+  }
+
+  .bar.off {
+    background: #2c362f;
+  }
+
+#bar1 {
+  float: left;
+  margin-right: 10px;
+  width: 150px;
+}
+
+#bar2 {
+  float: right;
+  margin-left: 10px;
+  width: 150px;
+}
+
+#canvas_container {
+  overflow: hidden;
+  height: 560px;
+  background: #2e3134;
+}

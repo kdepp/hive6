@@ -42,6 +42,7 @@ var boardFactory = function (_opts) {
   var _init = function () {
     var width  = parseInt(du.getStyle(opts.$container, 'width'), 10);
     var height = parseInt(du.getStyle(opts.$container, 'height'), 10);
+    debugger
     $canvas = opts.document.createElement('canvas');
     $canvas.width  = width;
     $canvas.height = height;
