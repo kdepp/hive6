@@ -96,9 +96,13 @@ var webRouter = [
   }
   , {
     method: 'get', url: '/game/create',
-    callback: function (req, res) {
-      res.render('game_create');
+    callback: [
+      ensureLogin,
+      function (req, res) {
+        var data = userAndError(req)
+        res.render('game_create', data);
     }
+    ]
   }
   , {
     method: 'post', url: '/game/create',
