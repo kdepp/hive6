@@ -32,6 +32,13 @@ var webRouter = [
     }
   }
   , {
+    method: 'get', url: '/rules',
+    callback: function (req, res) {
+      var data  = userAndError(req);
+      res.render('rules', data);
+    }
+  }
+  , {
     method: 'get', url: '/login',
     callback: function (req, res) {
       var data  = userAndError(req);

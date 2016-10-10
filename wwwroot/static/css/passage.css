@@ -1,0 +1,21 @@
+.passage {
+  margin: 30px auto 0;
+  padding: 20px 50px 50px;
+  width: 600px;
+  border: 1px solid rgba(0, 0, 0, 0.5);
+  border-radius: 2px;
+  background: #2c362f;
+  color: #a1a7aa;
+}
+
+  .passage ul {
+    list-style-type: disc;
+  }
+
+  .passage h2 {
+    color: orange;
+  }
+
+  .passage h3 {
+    color: #906200;
+  }
