@@ -38,10 +38,16 @@ var makeDB = function (name) {
         .then(function (db) {
           return new Promise(function (resolve, reject) {
             var collection = db.collection(name);
-            collection[method].apply(collection, args.concat(function (err, data) {
+            var callback   = function (err, data) {
               if (err)  reject(err);
               resolve(data);
-            }));
+            };
+
+            if (cmd === 'find' && postfix === 'Many') {
+              collection['find'].apply(collection, args).toArray(callback);
+            } else {
+              collection[method].apply(collection, args.concat(callback));
+            }
           })
         });
       };
