@@ -141,6 +141,7 @@ var mGame = {
 
       return db.games.updateById(gameId, {
         $set: {
+          status: 1,
           players: players,
           updateTime: new Date()
         }
