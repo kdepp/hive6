@@ -238,7 +238,8 @@ var boardFactory = function (_opts) {
         center: transform(point),
         radius: radius,
         margin: 1,
-        fillStyle: 'rgba(186, 250, 66, 0.5)'
+        marginStyle: '#2e3134',
+        fillStyle: 'rgba(186, 250, 66, 0.6)'
       });
     });
   };
