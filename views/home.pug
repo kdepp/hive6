@@ -1,12 +1,26 @@
 extends frame.pug
 
 block title
-  | Login
+  | 在线昆虫棋对战
+
+block append css
+  link(rel='stylesheet' href='/static/css/passage.css')
 
 block content
-  h1 Welcome to Hive6!
-  if isLogined
-    a(href='/logout') #{username} Logout
-  else
-    a(href='/login') Login
-    a(href='/register') Register
+  div.passage
+    h1 欢迎来到昆虫棋网
+    br
+    p
+      span 还不了解什么是昆虫棋？可以先看下&nbsp;
+      a(href='/rules') 昆虫棋的游戏规则
+
+    p
+      span 想先自己尝试下昆虫棋？可以选择&nbsp;
+      a(href='/game/vs/local') 本地游戏
+
+    p
+      span 有小伙伴可以一起玩昆虫棋？那就可以先&nbsp;
+      a(href='/register') 注册,
+      a(href='/login') 登录
+      span ，然后选择&nbsp;
+      a(href='/game/create') 开一局在线对战

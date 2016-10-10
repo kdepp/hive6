@@ -19,3 +19,11 @@
   .passage h3 {
     color: #906200;
   }
+
+  .passage a {
+    color: #906200;
+  }
+
+  .passage a:hover {
+    color: orange;
+  }
