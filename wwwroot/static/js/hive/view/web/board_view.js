@@ -42,7 +42,6 @@ var boardFactory = function (_opts) {
   var _init = function () {
     var width  = parseInt(du.getStyle(opts.$container, 'width'), 10);
     var height = parseInt(du.getStyle(opts.$container, 'height'), 10);
-    debugger
     $canvas = opts.document.createElement('canvas');
     $canvas.width  = width;
     $canvas.height = height;
@@ -185,6 +184,7 @@ var boardFactory = function (_opts) {
         center: transform(coord.point),
         radius: radius,
         margin: 1,
+        marginStyle: '#2e3134',
         fillStyle: coord.isDragging ? 'rgba(149, 145, 145, 0.5)' : side.COLOR,
         image: coord.isDragging ? null : x.sprintf(role.IMG, {side: side.ID ? 'op' : 'me'}),
         imageSize: role.IMGSIZE,
