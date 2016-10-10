@@ -102,7 +102,7 @@ var mGame = {
           });
 
           return Object.assign({
-            opponent: {
+            opponent: user && {
               username: user.username,
               _id: user._id.toString()
             }
