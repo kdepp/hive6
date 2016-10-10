@@ -68,6 +68,7 @@ var toolbarFactory = function (options) {
           ];
         },
         onDragEnd: function (ev) {
+          vToolbar.emit('END_PLACE');
           // if (!ev.success || !ev.dragging) return;
           // opts.inventory[i][ev.dragging.type.roleId] --;
           // _renderPlayers();

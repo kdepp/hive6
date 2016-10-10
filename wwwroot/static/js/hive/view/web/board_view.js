@@ -88,6 +88,7 @@ var boardFactory = function (_opts) {
       },
       onDragEnd: function (ev) {
         coordinates[ev.dragging.type.boardIndex].isDragging = false;
+        vBoard.setAvailables([]);
         setTimeout(_render);
       }
     });

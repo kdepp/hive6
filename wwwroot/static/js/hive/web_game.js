@@ -94,6 +94,9 @@ var gameFactory = function (options) {
       player.on('UPDATE_POSSIBLE_MOVE', function (data) {
         vBoard.setAvailables(data.availables);
       });
+      vToolbar.on('END_PLACE', function () {
+        vBoard.setAvailables([]);
+      });
       vToolbar.on('START_PLACE_' + sideId, function (data) {
         player.mayPlace(data.roleId);
       });
