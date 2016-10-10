@@ -39,6 +39,13 @@ var webRouter = [
     }
   }
   , {
+    method: 'get', url: '/about',
+    callback: function (req, res) {
+      var data  = userAndError(req);
+      res.render('about', data);
+    }
+  }
+  , {
     method: 'get', url: '/login',
     callback: function (req, res) {
       var data  = userAndError(req);
