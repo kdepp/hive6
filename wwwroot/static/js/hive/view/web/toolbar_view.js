@@ -14,7 +14,8 @@ var toolbarFactory = function (options) {
     samples: null,
     $container: null,
     inventory: null,
-    sideId: null
+    sideId: null,
+    playerTypeName: 'You'
   }, options);
   var inventory = opts.inventory;
   var $canvas   = null;
@@ -89,11 +90,12 @@ var toolbarFactory = function (options) {
 
     // Render Title
     reset = cu.setContext(ctx, [
-      ['font', '20px MicrosoftYaHei'],
+      ['font', '18px MicrosoftYaHei'],
+      ['textAlign', 'center'],
       ['fillStyle', '#fff']
     ]);
 
-    ctx.fillText(playerConfig.title, 50, 30);
+    ctx.fillText(playerConfig.title + ' (' + opts.playerTypeName + ')', 75, 30);
     reset();
 
     // Render Available Chess

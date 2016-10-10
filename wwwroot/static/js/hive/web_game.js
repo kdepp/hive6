@@ -79,6 +79,7 @@ var gameFactory = function (options) {
       sideId: sideId,
       inventory: chair.inventory(),
       isYourTurn: sideId === 0,
+      playerTypeName: ['You', 'Remote', 'AI'][type],
       canMove: function () {
         return chair.canMove();
       }

@@ -187,8 +187,6 @@ var boardFactory = function (_opts) {
       return _render();
     }
 
-    debugger
-
     // modify $canvas width height
     $canvas.width     = targetWidth;
     $canvas.height    = targetHeight;
