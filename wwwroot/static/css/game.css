@@ -44,7 +44,7 @@
 }
 
 #canvas_container {
-  overflow: hidden;
+  overflow: scroll;
   height: 560px;
   background: #2e3134;
 }

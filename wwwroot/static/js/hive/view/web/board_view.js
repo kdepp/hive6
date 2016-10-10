@@ -28,21 +28,37 @@ var boardFactory = function (_opts) {
   var availables    = [];
   var coordinates   = null;
 
+  var canvasWidth   = null;
+  var canvasHeight  = null;
+
   var update = function (data, noRender) {
     coordinates = data.coordinates || [];
-    if (!noRender)  _render();
+    if (!noRender)  _adjustCanvasAndRender();
   };
 
   update({ coordinates: opts.coordinates }, true);
   /*
    * Board Helper Functions
    */
-  var transform = null;
+  var d3ToD2 = x.partial(function (origin, d3point) {
+    return x.compose(
+      pu.convert.ns3ToD2,
+      pu.ns3.addPoint(origin),
+      x.map(x.map(x.multi(radius * CC.RADIUS_FACTOR))),
+      pu.convert.d3ToNs3
+    )(d3point);
+  });
+
+  var transform = function (d3point) {
+    return d3ToD2(origin, d3point);
+  };
 
   var _init = function () {
-    var width  = parseInt(du.getStyle(opts.$container, 'width'), 10);
-    var height = parseInt(du.getStyle(opts.$container, 'height'), 10);
-    $canvas = opts.document.createElement('canvas');
+    var width     = parseInt(du.getStyle(opts.$container, 'width'), 10);
+    var height    = parseInt(du.getStyle(opts.$container, 'height'), 10);
+    canvasWidth   = width;
+    canvasHeight  = height;
+    $canvas       = opts.document.createElement('canvas');
     $canvas.width  = width;
     $canvas.height = height;
     du.setStyle($canvas, {
@@ -52,13 +68,6 @@ var boardFactory = function (_opts) {
     ctx    = $canvas.getContext('2d');
     origin = [[width / 2, 0], [height / 2, 0]];
     opts.$container.appendChild($canvas);
-
-    transform = x.compose(
-      pu.convert.ns3ToD2,
-      pu.ns3.addPoint(origin),
-      x.map(x.map(x.multi(radius * CC.RADIUS_FACTOR))),
-      pu.convert.d3ToNs3
-    );
 
     opts.dnd.addSource({
       $dom: $canvas,
@@ -89,49 +98,13 @@ var boardFactory = function (_opts) {
       onDragEnd: function (ev) {
         coordinates[ev.dragging.type.boardIndex].isDragging = false;
         vBoard.setAvailables([]);
-        setTimeout(_render);
       }
     });
 
     opts.dnd.addTarget({
       $dom: $canvas,
       onMove: function (ev) {
-        /*
-        if (!ev.dragging) return;
-        if (isDragging) return;
-        isDragging = true;
-
-        var type = ev.dragging.type;
-        var onSide = x.partial(function (sideId, item, i) {
-          return coordinates[i].side === sideId;
-        });
-
-        if (type.boardIndex === undefined) {
-          // Dragging from toolbar
-          if (points.length === 0) {
-            availables = [[0, 0, 0]].map(pu.convert.d3ToNs3);
-          } else if (points.filter(onSide(type.sideId)).length === 0) {
-            availables = x.compose(pu.d3.uniquePoints, x.flatten)(
-              points.map(pu.convert.ns3ToD3).map(pu.d3.around)
-            ).map(pu.convert.d3ToNs3);
-          } else {
-            availables = x.compose(pu.d3.uniquePoints, x.flatten)(
-              points.filter(onSide(type.sideId)).map(pu.convert.ns3ToD3).map(pu.d3.around)
-            ).filter(function (coord) {
-              if (pu.d3.getPoint(d3Index, coord)) return false;
-              return !pu.d3.around(coord).find(function (subCoord) {
-                var pinfo = pu.d3.getPoint(d3Index, subCoord);
-                return pinfo && pinfo.side === 1 - type.sideId;
-              })
-            }).map(pu.convert.d3ToNs3);
-          }
-        } else {
-          // Dragging from board
-          availables = movement(type.roleId, pu.convert.ns3ToD3(type.originPos), d3Index);
-        }
-
-        _render();
-        */
+        //
       },
       onDragLeave: function (ev) {
         // isDragging = false;
@@ -162,11 +135,78 @@ var boardFactory = function (_opts) {
           });
         }
 
-        availables = [];
-        setTimeout(_render);
+        _adjustCanvasAndRender();
+        vBoard.setAvailables([]);
         return true;
       }
     });
+  };
+
+  var _adjustCanvasAndRender = function () {
+    var maxLeft   = Infinity;
+    var maxTop    = Infinity;
+    var maxRight  = -Infinity;
+    var maxBtm    = -Infinity;
+
+    if (!coordinates.length) {
+      return _render();
+    }
+
+    coordinates.forEach(function (coordinate) {
+      var d2point = d3ToD2([[0, 0], [0, 0]], coordinate.point);
+      var x = d2point[0];
+      var y = d2point[1];
+
+      if (x < maxLeft)  maxLeft   = x;
+      if (x > maxRight) maxRight  = x;
+      if (y < maxTop)   maxTop    = y;
+      if (y > maxBtm)   maxBtm    = y;
+    });
+
+    // max of left right
+    // max of top bottom
+    var maxLeftRight  = Math.max(Math.abs(maxLeft), Math.abs(maxRight));
+    var maxTopBtm     = Math.max(Math.abs(maxTop),  Math.abs(maxBtm));
+
+    // current width height
+    var curWidth = canvasWidth;
+    var curHeight = canvasHeight;
+
+    // current scroll
+    var curScrollLeft = opts.$container.scrollLeft;
+    var curScrollTop  = opts.$container.scrollTop;
+
+    // delta of width height
+    var targetWidth   = Math.max(curWidth,  maxLeftRight * 2 * 1.6);
+    var targetHeight  = Math.max(curHeight, maxTopBtm * 2 * 1.6);
+    var deltaWidth    = targetWidth  - curWidth;
+    var deltaHeight   = targetHeight - curHeight;
+
+    console.log('deltaWidth, deltaHeight', deltaWidth, deltaHeight);
+    if (deltaWidth <= 0 && deltaHeight <= 0)  {
+      return _render();
+    }
+
+    debugger
+
+    // modify $canvas width height
+    $canvas.width     = targetWidth;
+    $canvas.height    = targetHeight;
+    du.setStyle($canvas, {
+      width: targetWidth + 'px',
+      height: targetHeight + 'px'
+    });
+    canvasWidth   = targetWidth;
+    canvasHeight  = targetHeight;
+
+    // modify origin
+    origin = [[targetWidth / 2, 0], [targetHeight / 2, 0]];
+
+    // scroll in opts.$container
+    opts.$container.scrollLeft = curScrollLeft + deltaWidth / 2;
+    opts.$container.scrollTop  = curScrollTop  + deltaHeight / 2;
+
+    _render();
   };
 
   var _render = function () {
