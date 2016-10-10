@@ -213,6 +213,13 @@ var webRouter = [
       }
     ]
   }
+  , {
+    method: 'get', url: '/game/vs/local',
+    callback: function (req, res) {
+      var data  = userAndError(req);
+      res.render('game_local', data);
+    }
+  }
 ];
 
 module.exports = webRouter;
