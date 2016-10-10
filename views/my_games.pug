@@ -4,19 +4,25 @@ block title
   | 我的棋局
 
 block append css
+  link(rel='stylesheet' href='/static/css/passage.css')
   link(rel='stylesheet' href='/static/css/game_list.css')
   style.
     .game-list-wrapper {
       margin-top: 30px;
     }
 
+    .game-list-wrapper h1 {
+      color: #555;
+    }
+
 block content
   if games.length > 0
     include ./mixins/mixin_game_list.pug
     div.game-list-wrapper
-    +gameList(games)
+      h1 我的在线棋局
+      +gameList(games)
   else
-    div
+    div.passage
       p
         span 你还没参加过在线对局, 赶紧
         a(href='/game/create') &nbsp;来一局&nbsp;
