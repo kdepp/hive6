@@ -1,7 +1,7 @@
 extends frame.pug
 
 block title
-  | 在线对战
+  | 本地对战
 
 block append css
   link(rel='stylesheet' href='/static/css/login.css')
@@ -12,7 +12,7 @@ block append js
     var globalPlayerTypes = [0, 0];
     var globalGameId = null;
   script(src='/static/js/dist/web.d.js')
-  
+
 block content
   div.game-box
     div#bar1.bar
