@@ -1,0 +1,14 @@
+
+
+mixin gameList(list)
+  ul.game-list
+    each game in list
+      li.game-item
+        a.game-image(href='/game/' + game._id  target='_blank')
+          img(src='/static/img/default_game_pic.jpg')
+        a.opponent(href='/game/' + game._id  target='_blank')
+          span VS&nbsp;&nbsp;
+          span #{game.opponent.username}
+        a.game-status(href='/game/' + game._id  target='_blank') #{game.statusName}
+        div.game-starttime 开始时间：#{game.createTime}
+        div.game-updatetime 更新时间：#{game.updateTime}

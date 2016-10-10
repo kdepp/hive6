@@ -23,6 +23,14 @@ var userAndError = function (req, data) {
   }, data);
 };
 
+var formatDate = function (date) {
+  return [
+    date.getFullYear(),
+    date.getMonth() + 1,
+    date.getDate()
+  ].join('-');
+};
+
 var webRouter = [
   {
     method: 'get', url: '/',
@@ -219,6 +227,33 @@ var webRouter = [
       var data  = userAndError(req);
       res.render('game_local', data);
     }
+  }
+  , {
+    method: 'get', url: '/my/games',
+    callback: [
+      ensureLogin,
+      function (req, res) {
+        var userId = req.user._id.toString();
+
+        mGame.findByUserId(userId)
+        .then(function (games) {
+          console.log('MYYYYYY games', games);
+          var data = userAndError(req, {
+            games: games.map(function (game) {
+              return Object.assign(game, {
+                statusName: ['尚未开始', '进行中', '已结束'][game.status],
+                createTime: formatDate(game.createTime),
+                updateTime: formatDate(game.updateTime)
+              });
+            })
+          });
+          res.render('my_games', data);
+        })
+        .catch(function (e) {
+          console.log(e.stack);
+        });
+      }
+    ]
   }
 ];
 

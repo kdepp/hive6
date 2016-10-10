@@ -1,0 +1,30 @@
+.game-list {
+  width: 100%;
+  margin-right: -20px;
+}
+
+  .game-list .game-item {
+    float: left;
+    width: 200px;
+    margin-right: 20px;
+    color: #555;
+    text-align: center;
+    font-size: 14px;
+  }
+
+  .game-list .game-item .game-image {
+    width: 200px;
+    height: 150px;
+  }
+
+  .game-list .game-item .opponent {
+    margin: 5px 0;
+    font-size: 16px;
+    color: #fff;
+  }
+
+  .game-list .game-item .game-status {
+    display: block;
+    margin: 5px 0;
+    color: #c7c72c;
+  }

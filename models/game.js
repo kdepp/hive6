@@ -1,3 +1,5 @@
+var x = require('kd-utils');
+var ObjectID = require('mongodb').ObjectID;
 var db = require('../db/mongo');
 var ERROR = require('../common/error_code');
 var mUser = require('./user');
@@ -80,6 +82,33 @@ var mGame = {
         throw ERROR.GAME.FIND_BY_ID.GAME_NOT_EXIST;
       }
       return game;
+    });
+  },
+  findByUserId: function (userId) {
+    return db.games.find({players: userId.toString()})
+    .then(function (games) {
+      var userIds = x.deep_flatten(x.pluck('players', games)).map(ObjectID);
+
+      if (userIds.length === 0) return [];
+
+      return db.users.find({_id: {$in: userIds}})
+      .then(function (users) {
+        return games.map(function (game) {
+          var opUserId = game.players.find(function (id) {
+            return id !== userId;
+          });
+          var user = users.find(function (user) {
+            return user._id.toString() === opUserId;
+          });
+
+          return Object.assign({
+            opponent: {
+              username: user.username,
+              _id: user._id.toString()
+            }
+          }, game);
+        });
+      });
     });
   },
   create: function (userId, sideId) {
