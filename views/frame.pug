@@ -6,6 +6,16 @@ html
       |  - Hive6 昆虫棋网
     block css
       link(rel='stylesheet' href='/static/css/frame.css')
+    script.
+      /*百度统计*/
+      var _hmt = _hmt || [];
+      (function() {
+        var hm = document.createElement("script");
+        hm.src = "//hm.baidu.com/hm.js?3c1e97a43981a15150a5828757c73861";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(hm, s);
+      })();
+
   body
     header
       block header
