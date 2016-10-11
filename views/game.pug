@@ -11,7 +11,12 @@ block content
   if sharePassword
     div.msg-box
       p 棋局已创建，把链接和密码发给小伙伴，邀请TA来对战！
-      p.orange 链接: http://localhost:3030/game/#{_id} <br/> 密码: #{password}
+      p.orange
+        span 链接:
+        script.
+          var loc = window.location;
+          document.write(loc.protocol + '//' + loc.host);
+        span /game/#{_id} <br/> 密码: #{password}
   else if needPassword || !authorized
     form(method='post' action='/game/' + _id + '/join')
       div.hexagon-box.login-box
