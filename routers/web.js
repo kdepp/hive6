@@ -170,6 +170,28 @@ var webRouter = [
     }
   }
   , {
+    method: 'get', url: '/game/:id/replay',
+    callback: function (req, res) {
+      var gameId = req.params.id;
+
+      mGame.findById(gameId)
+      .then(
+        function (game) {
+          if (!game || game.status !== 2) {
+            req.flash('error_code', ERROR.GAME.REPLAY.GAME_NOT_END_YET);
+          }
+          return game;
+        },
+        function (error_code) {
+          req.flash('error_code', error_code);
+        }
+      )
+      .then(function (game) {
+        res.render('game_replay', userAndError(req, game));
+      })
+    }
+  }
+  , {
     method: 'get', url: '/game/:id',
     callback: [
       ensureLogin,
@@ -181,6 +203,11 @@ var webRouter = [
         .then(
           function (game) {
             var data;
+
+            if (game.status === 2) {
+              return res.redirect('/game/' + gameId + '/replay');
+            }
+
             var comein = game.players.filter(function (item) { return item === null }).length > 0;
 
             if (comein) {

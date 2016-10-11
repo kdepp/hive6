@@ -1,0 +1,24 @@
+extends frame.pug
+
+block title
+  | 复盘在线对战
+
+block append css
+  link(rel='stylesheet' href='/static/css/game.css')
+
+block append js
+  if !error
+    script.
+      var globalPlayerTypes = [3, 3];
+      var globalGameId = !{JSON.stringify(_id.toString())};
+    script(src='/static/js/dist/web.d.js')
+
+block content
+  if error
+    div No replay for this game
+  else
+    div.game-box
+      div#bar1.bar
+      div#bar2.bar
+      div#canvas_container.bar
+      div#replay_container

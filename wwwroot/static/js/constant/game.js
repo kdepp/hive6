@@ -19,7 +19,8 @@ var ROLE = {
 var PLAYER_TYPE = {
   HUMAN:  { ID: 0 },
   REMOTE: { ID: 1 },
-  AI:     { ID: 2 }
+  AI:     { ID: 2 },
+  REPLAY: { ID: 3 }
 };
 
 var GAME_STATUS = {

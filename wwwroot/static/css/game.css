@@ -48,3 +48,33 @@
   height: 560px;
   background: #2e3134;
 }
+
+#replay_container {
+  position: fixed;
+  left: 50%;
+  bottom: 30px;
+  width: 200px;
+  height: 40px;
+  line-height: 40px;
+  border-radius: 10px;
+  background-color: green;
+  text-align: center;
+  color: #fff;
+}
+
+  #replay_container .replay-next {
+    box-sizing: border-box;
+    float: right;
+    width: 50%;
+    height: 100%;
+    border-left: 1px solid #ccc;
+    cursor: pointer;
+  }
+
+  #replay_container .replay-reset {
+    box-sizing: border-box;
+    float: left;
+    width: 50%;
+    height: 100%;
+    cursor: pointer;
+  }

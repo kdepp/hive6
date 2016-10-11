@@ -281,7 +281,7 @@ var mGame = {
     console.log('in checkExpire');
     return mGame.findById(gameId)
     .then(function (game) {
-      if (game.players.indexOf(userId) === -1) {
+      if (game.isPrivate && game.players.indexOf(userId) === -1) {
         throw ERROR.GAME.USER_UNAUTHORIZED;
       }
 

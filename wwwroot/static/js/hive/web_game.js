@@ -1,8 +1,11 @@
 var coreFactory    = require('./core/hive_core');
+var replayPlugin   = require('./plugin/replay_plugin');
 var humanPlayer    = require('./player/human_player');
 var remotePlayer   = require('./player/remote_player');
+var replayPlayer   = require('./player/replay_player');
 var boardFactory   = require('./view/web/board_view');
 var toolbarFactory = require('./view/web/toolbar_view');
+var replayFactory  = require('./view/web/replay_view');
 var sampleChesses  = require('./view/web/sample_chesses');
 
 var x           = require('../common/utils');
@@ -15,6 +18,7 @@ var gameFactory = function (options) {
   var opts = Object.assign({
     document: null,
     $boardContainer: null,
+    $replayContainer: null,
     $toolbarContainers: [],
     playertypes: [CG.PLAYER_TYPE.HUMAN.ID, CG.PLAYER_TYPE.HUMAN.ID],
     gameId: null
@@ -25,7 +29,7 @@ var gameFactory = function (options) {
   }
 
   if (!x.and(opts.playertypes.map(function (type) {
-    return [0, 1, 2].indexOf(type) !== -1;
+    return [0, 1, 2, 3].indexOf(type) !== -1;
   }))) {
     throw new Error('Game Factory: invalid player type');
   }
@@ -69,6 +73,9 @@ var gameFactory = function (options) {
   var participants  = [];
   var vToolbars     = [];
 
+  var replayEngine;
+  var vReplay;
+
   opts.playertypes.map(function (type, sideId) {
     var chair = core.register(sideId);
     var vToolbar = toolbarFactory({
@@ -79,7 +86,7 @@ var gameFactory = function (options) {
       sideId: sideId,
       inventory: chair.inventory(),
       isYourTurn: sideId === 0,
-      playerTypeName: ['You', 'Remote', 'AI'][type],
+      playerTypeName: ['You', 'Remote', 'AI', 'Replay'][type],
       canMove: function () {
         return chair.canMove();
       }
@@ -123,6 +130,30 @@ var gameFactory = function (options) {
       });
     } else if (type === CG.PLAYER_TYPE.AI.ID) {
       player = null;
+    } else if (type === CG.PLAYER_TYPE.REPLAY.ID) {
+      replayEngine = replayPlugin(opts.gameId);
+
+      player = replayPlayer({
+        chair: chair,
+        replayEngine: replayEngine
+      });
+
+      replayEngine.setPlayer(sideId, player);
+    }
+
+    if (replayEngine && !vReplay) {
+      vReplay = replayFactory({
+        document: opts.document,
+        $container: opts.$replayContainer
+      });
+      vReplay.on('next', function () {
+        replayEngine.next();
+      });
+      vReplay.on('reset', function () {
+        core.reset([], []);
+        replayEngine.reset();
+      });
+      vReplay.init();
     }
 
     chair.on('TOGGLE_YOUR_TURN', function (data) {
@@ -145,13 +176,13 @@ var gameFactory = function (options) {
     });
 
     vToolbars.push(vToolbar);
-
     vToolbar.init();
   });
 
   return {
     vBoard: vBoard,
     vToolbars: vToolbars,
+    vReplay: vReplay,
     participants: participants,
     core: core
   };

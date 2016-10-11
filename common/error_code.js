@@ -58,6 +58,9 @@ module.exports = {
     },
     CHECK: {
       TIMESTAMP_EMPTY: inc()
+    },
+    REPLAY: {
+      GAME_NOT_END_YET: inc()
     }
   }
 };
