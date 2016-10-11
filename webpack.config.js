@@ -11,5 +11,12 @@ module.exports = {
     filename: 'web.d.js',
     sourceMapFilename: '[file].map'
   },
-  devtool: "source-map"
+  devtool: 'source-map',
+  plugins: [
+    new webpack.optimize.UglifyJsPlugin({
+      compress: {
+        warnings: false
+      }
+    })
+  ]
 }
