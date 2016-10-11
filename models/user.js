@@ -29,7 +29,6 @@ module.exports = {
 
       db.users.findOne({username: username})
       .then(function (user) {
-        console.log('found', user);
         if (!user)  {
           return reject(ERROR.USER.LOGIN.USER_NOT_EXIST);
         }

@@ -26,6 +26,9 @@ var humanPlayer = function (options) {
     wait: function () {
       // Human do nothing in wait
     },
+    gameOver: function (sideId) {
+      // Human do nothing in gameOver
+    },
     move: function (src, dst) {
       if (!opts.chair.canMove()) return;
       return opts.chair.move(src, dst);

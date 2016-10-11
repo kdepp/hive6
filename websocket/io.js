@@ -37,8 +37,14 @@ var init = function (options) {
       );
     });
 
-    socket.on('NEW_MOVE', function (data) {
+    socket.on('WIN', function (data) {
+      mGame.end(data.gameId, data.sideId)
+      .catch(function (e) {
+        console.log(u.errText(e));
+      });
+    });
 
+    socket.on('NEW_MOVE', function (data) {
       mGame.move(
         data.gameId, userId,
         data.type, data.sideId,

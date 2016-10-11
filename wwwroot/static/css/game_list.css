@@ -28,3 +28,15 @@
     margin: 5px 0;
     color: #c7c72c;
   }
+
+    .game-result--1 {
+      color: red;
+    }
+
+    .game-result-0 {
+      color: #ccc;
+    }
+
+    .game-result-1 {
+      color: green;
+    }

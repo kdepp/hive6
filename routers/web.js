@@ -104,7 +104,6 @@ var webRouter = [
           });
         },
         function (error_code) {
-          console.log(error_code);
           backToRegister(error_code);
         }
       )
@@ -264,7 +263,6 @@ var webRouter = [
 
         mGame.findByUserId(userId)
         .then(function (games) {
-          console.log('MYYYYYY games', games);
           var data = userAndError(req, {
             games: games.map(function (game) {
               return Object.assign(game, {

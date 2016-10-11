@@ -14,6 +14,9 @@ var replayPlayer = function (options) {
     wait: function () {
       // Replay do nothing in wait
     },
+    gameOver: function () {
+      // Replay do nothing in gameOver
+    },
     move: function (src, dst) {
       if (!opts.chair.canMove()) return;
       return opts.chair.move(src, dst);

@@ -85,7 +85,7 @@ var mGame = {
     });
   },
   findByUserId: function (userId) {
-    return db.games.find({players: userId.toString()})
+    return db.games.find({players: userId.toString()}, {}, {sort: [['updateTime', 'desc']]})
     .then(function (games) {
       var userIds = x.deep_flatten(x.pluck('players', games)).map(ObjectID);
 
@@ -102,6 +102,7 @@ var mGame = {
           });
 
           return Object.assign({
+            gameResult: game.winner && game.winner.userId === userId ? 1 : -1,
             opponent: user && {
               username: user.username,
               _id: user._id.toString()
@@ -205,7 +206,8 @@ var mGame = {
           winner: {
             sideId: winnerSideId,
             userId: game.players[winnerSideId]
-          }
+          },
+          updateTime: new Date()
         }
       });
     });
@@ -278,7 +280,6 @@ var mGame = {
       return Promise.reject(ERROR.GAME.CHECK.TIMESTAMP_EMPTY);
     }
 
-    console.log('in checkExpire');
     return mGame.findById(gameId)
     .then(function (game) {
       if (game.isPrivate && game.players.indexOf(userId) === -1) {

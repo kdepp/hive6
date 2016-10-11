@@ -1,3 +1,5 @@
+/* global alert */
+
 var coreFactory    = require('./core/hive_core');
 var replayPlugin   = require('./plugin/replay_plugin');
 var humanPlayer    = require('./player/human_player');
@@ -64,7 +66,12 @@ var gameFactory = function (options) {
   });
 
   core.on('GAME_OVER', function (data) {
-    alert(JSON.stringify(data));
+    setTimeout(function () {
+      alert('Game Over');
+      participants.forEach(function (person) {
+        person.player.gameOver(data.winner);
+      })
+    });
   })
 
   vBoard.init();
@@ -122,7 +129,8 @@ var gameFactory = function (options) {
     } else if (type === CG.PLAYER_TYPE.REMOTE.ID) {
       player = remotePlayer({
         chair: chair,
-        gameId: opts.gameId
+        gameId: opts.gameId,
+        sideId: sideId
       });
 
       player.on('REMOTE_LOADED', function (data) {

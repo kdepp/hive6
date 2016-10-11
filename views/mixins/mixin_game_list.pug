@@ -13,6 +13,9 @@ mixin gameList(list)
               | #{game.opponent.username}
             else
               | [待定]
-        a.game-status(href='/game/' + game._id  target='_blank') #{game.statusName}
+        a.game-status(href='/game/' + game._id  target='_blank')
+          span #{game.statusName}
+          if game.status === 2
+            span(class='game-result-' + game.gameResult) &nbsp(#{['负', '平', '胜'][game.gameResult + 1]})
         div.game-starttime 开始时间：#{game.createTime}
         div.game-updatetime 更新时间：#{game.updateTime}
