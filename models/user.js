@@ -59,14 +59,14 @@ module.exports = {
         throw ERROR.USER.REGISTER.PASSWORD_TOO_SHORT;
       }
 
-      if ([
-        /[a-z]/.test(password),
-        /[A-Z]/.test(password),
-        /[0-9]/.test(password),
-        /[~!@#$%^&*()_+=-[\]{}'";:/?.>,<`]/.test(password)
-      ].filter(id).length < 4) {
-        throw ERROR.USER.REGISTER.PASSWORD_TOO_SIMPLE;
-      }
+      // if ([
+      //   /[a-z]/.test(password),
+      //   /[A-Z]/.test(password),
+      //   /[0-9]/.test(password),
+      //   /[~!@#$%^&*()_+=-[\]{}'";:/?.>,<`]/.test(password)
+      // ].filter(id).length < 4) {
+      //   throw ERROR.USER.REGISTER.PASSWORD_TOO_SIMPLE;
+      // }
 
       db.users.insertOne({
         username: username,
