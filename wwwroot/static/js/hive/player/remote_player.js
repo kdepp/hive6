@@ -1,15 +1,10 @@
 var io = require('socket.io-client');
 
-var request = require('superagent');
 var x = require('../../common/utils');
 var Eventer = require('../../common/event_emitter');
 
-var checkWebSocket = function () {
-  return 'WebSocket' in window;
-};
-
 var useWebSocket = function (gameId, callback) {
-  var socket = io('http://localhost:3000');
+  var socket = io('//' + window.location.hostname + ':3000');
   var onLoad = x.partial(function (isInitial, data) {
     if (data.coordinates && data.movements) {
       // emit board data to board_view
@@ -99,7 +94,6 @@ var remotePlayer = function (options) {
     },
     gameOver: function (sideId) {
       if (sideId === opts.sideId) {
-        debugger
         connection.win(opts.gameId, opts.sideId);
       }
     },
