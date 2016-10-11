@@ -27,16 +27,18 @@ var boardFactory = function (_opts) {
   var humanSideIds  = [];
   var availables    = [];
   var coordinates   = null;
+  var lastMove      = null;
 
   var canvasWidth   = null;
   var canvasHeight  = null;
 
   var update = function (data, noRender) {
     coordinates = data.coordinates || [];
+    lastMove    = data.movements[data.movements.length - 1];
     if (!noRender)  _adjustCanvasAndRender();
   };
 
-  update({ coordinates: opts.coordinates }, true);
+  update({ coordinates: opts.coordinates, movements: [] }, true);
   /*
    * Board Helper Functions
    */
@@ -231,6 +233,36 @@ var boardFactory = function (_opts) {
       });
     });
 
+    // draw lastMove;
+    if (lastMove) {
+      if (lastMove.type === 0) {
+        cu.marginHexagon(ctx, {
+          center: transform(lastMove.dst),
+          radius: radius,
+          margin: 3,
+          marginStyle: '#ff0',
+          fillStyle: 'transparent'
+        });
+      } else {
+        cu.marginHexagon(ctx, {
+          center: transform(lastMove.dst),
+          radius: radius,
+          margin: 3,
+          marginStyle: '#0f0',
+          fillStyle: 'transparent'
+        });
+
+        cu.marginHexagon(ctx, {
+          center: transform(lastMove.src),
+          radius: radius,
+          margin: 3,
+          marginStyle: '#f00',
+          fillStyle: 'transparent'
+        });
+      }
+    }
+
+    // draw availables
     availables.forEach(function (point) {
       cu.marginHexagon(ctx, {
         center: transform(point),
