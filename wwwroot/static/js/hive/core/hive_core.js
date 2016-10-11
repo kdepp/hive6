@@ -22,11 +22,11 @@ var calcInventory = function (board, coordinates, extension) {
 };
 
 var coreFactory = function (store, options) {
-  var data = Object.assign({
+  var data = x.extend({
     movements: null,
     coordinates: null
   }, store);
-  var opts = Object.assign({
+  var opts = x.extend({
     extension: false
   }, options);
   var coordinates, board;
@@ -93,8 +93,8 @@ var coreFactory = function (store, options) {
 
   var notify = function (sideId, isPlace) {
     notifyBoard('NEW_MOVEMENT', cloneData());
-    notifyPlayer(sideId,     'TOGGLE_YOUR_TURN', Object.assign({on: true},  cloneData()));
-    notifyPlayer(1 - sideId, 'TOGGLE_YOUR_TURN', Object.assign({on: false}, cloneData()));
+    notifyPlayer(sideId,     'TOGGLE_YOUR_TURN', x.extend({on: true},  cloneData()));
+    notifyPlayer(1 - sideId, 'TOGGLE_YOUR_TURN', x.extend({on: false}, cloneData()));
     if (isPlace) {
       notifyPlayer(1 - sideId, 'INVENTORY_UPDATE', { inventory: inventories[1 - sideId] });
     }

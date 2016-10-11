@@ -1,3 +1,5 @@
+var x = require('./utils');
+
 var _EventEmitter = function (_target) {
   var target = _target || {};
   var events = {};
@@ -43,7 +45,7 @@ var _EventEmitter = function (_target) {
     });
   };
 
-  return Object.assign(target, {
+  return x.extend(target, {
     on: function (name, fn) {
       return on(name, fn);
     },

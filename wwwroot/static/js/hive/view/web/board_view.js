@@ -10,7 +10,7 @@ var ROLE = CG.ROLE;
 var SIDE = CG.SIDE;
 
 var boardFactory = function (_opts) {
-  var opts = Object.assign({
+  var opts = x.extend({
     document: null,
     $container: null,
     dnd: null,

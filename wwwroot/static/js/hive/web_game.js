@@ -17,7 +17,7 @@ var dndBackend  = require('../dnd/dnd_backend_mouse');
 var CG = require('../constant/game');
 
 var gameFactory = function (options) {
-  var opts = Object.assign({
+  var opts = x.extend({
     document: null,
     $boardContainer: null,
     $replayContainer: null,

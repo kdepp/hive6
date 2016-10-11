@@ -9,7 +9,7 @@ var ROLE = CG.ROLE;
 var SIDE = CG.SIDE;
 
 var toolbarFactory = function (options) {
-  var opts = Object.assign({
+  var opts = x.extend({
     dnd: null,
     samples: null,
     $container: null,
@@ -43,7 +43,7 @@ var toolbarFactory = function (options) {
   var _init = function () {
     $canvas = (function () {
       var $dom = document.createElement('canvas');
-      du.setStyle($dom, Object.assign({}, playerCommonStyle, playerConfig.style));
+      du.setStyle($dom, x.extend({}, playerCommonStyle, playerConfig.style));
       opts.$container.appendChild($dom);
 
       opts.dnd.addSource({

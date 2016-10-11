@@ -1,5 +1,7 @@
+var x = require('../../common/utils');
+
 var replayPlayer = function (options) {
-  var opts = Object.assign({
+  var opts = x.extend({
     chair: null
   }, options);
 

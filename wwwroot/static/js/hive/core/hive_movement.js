@@ -193,7 +193,7 @@ var climbOneStep = function () {
 };
 
 var guess = function (oneStep, d3point, d3Index, options) {
-  var opts = Object.assign({
+  var opts = x.extend({
     step: 1
   }, options);
   var helper = function (oneStep, base, d3point, d3Index, step, result) {
@@ -241,7 +241,7 @@ var MOVEMENT = {
     }).filter(function (item) { return item; });
   },
   CLIMB: function (options, d3point, d3Index) {
-    var opts = Object.assign({
+    var opts = x.extend({
       step: 1
     }, options);
     var pinfo = d3.getPoint(d3Index, d3point);

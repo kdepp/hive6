@@ -86,7 +86,7 @@ var drawChessImage = function (ctx, center, radius, image, size) {
 };
 
 var marginHexagon = function (ctx, options) {
-  var opts = Object.assign({
+  var opts = x.extend({
     fillStyle: '#666',
     marginStyle: 'rgb(255, 255, 255)',
     center: [100, 100],

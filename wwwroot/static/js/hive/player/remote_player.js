@@ -27,7 +27,7 @@ var useWebSocket = function (gameId, callback) {
         throw new Error('Failed to post msg. WebSocket is already closed.')
       }
 
-      socket.emit('NEW_MOVE', Object.assign({
+      socket.emit('NEW_MOVE', x.extend({
         gameId: gameId,
         coordinates: JSON.stringify(coordinates)
       }, lastMove));
@@ -54,7 +54,7 @@ var connect = function (opts) {
 };
 
 var remotePlayer = function (options) {
-  var opts = Object.assign({
+  var opts = x.extend({
     chair: null,
     gameId: null,
     sideId: null,
@@ -102,7 +102,7 @@ var remotePlayer = function (options) {
     }
   });
 
-  var connection = connect(Object.assign({
+  var connection = connect(x.extend({
     onUpdate: function (data) {
       if (initialMovementCount === undefined) {
         initialMovementCount = data.movements.length;

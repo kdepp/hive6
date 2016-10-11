@@ -131,7 +131,7 @@ var x = {
   },
 
   maxBy: function (options) {
-    var opts = Object.assign({
+    var opts = x.extend({
       compare: function (a, b) { return a < b; }
     }, options);
 
@@ -217,6 +217,16 @@ var x = {
   deepClone: function (data) {
     // FIXME: should recursively parse data
     return JSON.parse(JSON.stringify(data));
+  },
+
+  extend: function () {
+    var args = [].slice.apply(arguments);
+    return args.reduce(function (prev, cur) {
+      Object.keys(cur).forEach(function (key) {
+        prev[key] = cur[key];
+      });
+      return prev;
+    }, {});
   }
 };
 

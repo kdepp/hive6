@@ -1,6 +1,10 @@
 var x = require('./utils');
 var CC = require('../constant/coordinate');
 
+var sign = function (a) {
+  return a === 0 ? 0 : (a > 0 ? 1 : -1);
+};
+
 // Note: use hash table to remove duplicates for performance
 var uniquePoints = function (points) {
   var result = [];
@@ -58,8 +62,8 @@ var d2 = {
     };
 
     var test = x.partial(function (point, fx, predicate) {
-      if (typeof fx === 'number')  return predicate === Math.sign(point[0] - fx);
-      return predicate === Math.sign(point[1] - fx(point[0]));
+      if (typeof fx === 'number')  return predicate === sign(point[0] - fx);
+      return predicate === sign(point[1] - fx(point[0]));
     });
 
     var adjusted = x.compose(

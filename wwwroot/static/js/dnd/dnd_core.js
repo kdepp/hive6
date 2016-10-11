@@ -65,7 +65,7 @@ var dnd = function (opts) {
       $inHand = null;
     }
 
-    s && s.onDragEnd(Object.assign({success: false}, ev, {dragging: dragging}));
+    s && s.onDragEnd(x.extend({success: false}, ev, {dragging: dragging}));
 
     isDragging = false;
     dragging = null;
@@ -86,11 +86,11 @@ var dnd = function (opts) {
     }
 
     if (!isDragging)  return;
-    target && target.onMove(Object.assign(ev, {dragging: dragging}));
+    target && target.onMove(x.extend(ev, {dragging: dragging}));
   });
   var onDrop = x.partial(function (target, ev) {
-    var success = target.onDrop(Object.assign(ev, {dragging: dragging}));
-    dragging && onDragEnd(dragging.source, Object.assign(ev, {success: success}));
+    var success = target.onDrop(x.extend(ev, {dragging: dragging}));
+    dragging && onDragEnd(dragging.source, x.extend(ev, {success: success}));
   });
   var onDragLeave = x.partial(function (target, ev) {
     target.onDragLeave(ev);

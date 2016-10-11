@@ -1,7 +1,8 @@
 var Eventer = require('../../../common/event_emitter');
+var x = require('../../../common/utils');
 
 var replayFactory = function (options) {
-  var opts = Object.assign({
+  var opts = x.extend({
     document: null,
     $container: null
   }, options);
