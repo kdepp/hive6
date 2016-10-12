@@ -8,9 +8,9 @@ var ROLE = {
   ANT:          { ID: 1, IMG: 'ant_${side}.png',         IMGSIZE: [66, 75] },
   GRASSHOPPER:  { ID: 2, IMG: 'grasshopper_${side}.png', IMGSIZE: [54, 83] },
   SPIDER:       { ID: 3, IMG: 'spider_${side}.png',      IMGSIZE: [71, 77] },
-  BEETLE:       { ID: 4, IMG: 'beetle_${side}.png',      IMGSIZE: [51, 79] }
+  BEETLE:       { ID: 4, IMG: 'beetle_${side}.png',      IMGSIZE: [51, 79] },
+  MOSQUITO:     { ID: 5, IMG: 'mosquito_${side}.png',    IMGSIZE: [88, 84] }
   /*
-  MOSQUITO:     { ID: 5, IMG: 'mosquito_${side}.png'    , IMGSIZE: [88, 84]  },
   LADYBUG:      { ID: 6, IMG: 'ladybug_${side}.png'     , IMGSIZE: [90, 108] },
   PILLBUG:      { ID: 7, IMG: 'pillbug_${side}.png'     , IMGSIZE: [87, 111] }
   */

@@ -257,12 +257,84 @@ var MOVEMENT = {
   }
 };
 
+var beeMove = function (point, board) {
+  return MOVEMENT.WALK({step: 1}, point, board);
+};
+
+var antMove = function (point, board) {
+  return MOVEMENT.WALK({step: Infinity}, point, board);
+};
+
+var spiderMove = function (point, board) {
+  return MOVEMENT.WALK({step: 3, exact: true}, point, board);
+};
+
+var grasshopperMove = function (point, board) {
+  return MOVEMENT.JUMP({}, point, board);
+};
+
+var beetleMove = function (point, board) {
+  return MOVEMENT.CLIMB({}, point, board);
+};
+
+var mosquitoMove = function (point, board) {
+  var info = d3.getPoint(board, point);
+
+  if (info.zIndex > 1)  return beetleMove(point, board);
+
+  var rolesAround = d3.around(point)
+  .filter(function (p) {
+    return !!d3.getPoint(board, p);
+  })
+  .map(function (p) {
+    return d3.getPoint(board, p).roleId;
+  })
+  .reduce(function (prev, cur) {
+    if (prev.indexOf(cur) === -1) prev.push(cur);
+    return prev;
+  }, []);
+
+  var result = x.compose(
+    d3.uniquePoints,
+    x.flatten,
+    x.map(function (roleId) {
+      return moveFnByRoleId(roleId, true)(point, board);
+    })
+  )(rolesAround);
+
+  return result;
+};
+
+var moveFnByRoleId = function (roleId, isMimic) {
+  switch (roleId) {
+    case ROLE.BEE.ID:
+      return beeMove;
+
+    case ROLE.ANT.ID:
+      return antMove;
+
+    case ROLE.SPIDER.ID:
+      return spiderMove;
+
+    case ROLE.GRASSHOPPER.ID:
+      return grasshopperMove;
+
+    case ROLE.BEETLE.ID:
+      return beetleMove;
+
+    case ROLE.MOSQUITO.ID:
+      return !isMimic ? mosquitoMove : function () { return [] };
+
+    default:
+      return beeMove;
+  }
+};
+
 /*
  * Factory for Hive6 Controller
  */
 
 var guessMove = function (board, coordinates, movements, point, sideId, roleId) {
-  var result;
   var hasBee = coordinates.find(function (coord) {
     return coord.sideId === sideId && coord.roleId === CG.ROLE.BEE.ID;
   });
@@ -270,31 +342,7 @@ var guessMove = function (board, coordinates, movements, point, sideId, roleId) 
   // No bee onboard, no movement allowed
   if (!hasBee)  return [];
 
-  switch (roleId) {
-    case ROLE.BEE.ID:
-      result = MOVEMENT.WALK({step: 1}, point, board);
-      break;
-
-    case ROLE.ANT.ID:
-      result = MOVEMENT.WALK({step: Infinity}, point, board);
-      break;
-
-    case ROLE.SPIDER.ID:
-      result = MOVEMENT.WALK({step: 3, exact: true}, point, board);
-      break;
-
-    case ROLE.GRASSHOPPER.ID:
-      result = MOVEMENT.JUMP({}, point, board);
-      break;
-
-    case ROLE.BEETLE.ID:
-      result = MOVEMENT.CLIMB({}, point, board);
-      break;
-
-    default:
-      result = MOVEMENT.WALK({step: 1}, point, board);
-  }
-
+  var result = moveFnByRoleId(roleId)(point, board);
   return filterKeepOneHive(board, point, result);
 };
 
