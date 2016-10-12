@@ -234,7 +234,7 @@ var boardFactory = function (_opts) {
     });
 
     // draw lastMove;
-    if (lastMove) {
+    if (lastMove && (!availables || !availables.length)) {
       if (lastMove.type === 0) {
         cu.marginHexagon(ctx, {
           center: transform(lastMove.dst),
