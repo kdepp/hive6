@@ -74,10 +74,14 @@ var boardFactory = function (_opts) {
     opts.dnd.addSource({
       $dom: $canvas,
       onDragStart: function (ev) {
-        var index = coordinates.findIndex(function (coord) {
+        var found = coordinates.sort(function (a, b) {
+          return b.zIndex - a.zIndex;
+        }).find(function (coord) {
           return pu.d2.inHexagon(transform(coord.point), radius, [ev.localX, ev.localY]);
         });
-        var found = coordinates[index];
+        var index = coordinates.findIndex(function (item) {
+          return item === found;
+        });
 
         if (!found) return false;
         if (!opts.canMove(found.sideId))  return false;
