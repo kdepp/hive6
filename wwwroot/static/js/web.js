@@ -1,5 +1,6 @@
 /* global globalPlayerTypes globalGameId */
 
+require('es6-shim');
 var gameFactory = require('./hive/web_game');
 
 var game = gameFactory({
