@@ -10,10 +10,9 @@ var calcInventory = function (board, coordinates, extension) {
   var initial = x.repeat(2, [1, 3, 3, 2, 2]);
 
   coordinates.forEach(function (c) {
-    var info = d3.getPoint(board, c.point);
-    initial[info.sideId][info.roleId] --;
+    initial[c.sideId][c.roleId] --;
 
-    if (initial[info.sideId][info.roleId] < 0) {
+    if (initial[c.sideId][c.roleId] < 0) {
       throw new Error('calcInventory: inventory cannot be negative number');
     }
   });
