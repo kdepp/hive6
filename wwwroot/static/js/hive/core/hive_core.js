@@ -7,7 +7,7 @@ var CG = require('../../constant/game');
 var d3 = pu.d3;
 
 var calcInventory = function (board, coordinates, extension) {
-  var initial = x.repeat(2, [1, 3, 3, 2, 2, 1]);
+  var initial = x.repeat(2, [1, 3, 3, 2, 2, 1, 1]);
 
   coordinates.forEach(function (c) {
     initial[c.sideId][c.roleId] --;

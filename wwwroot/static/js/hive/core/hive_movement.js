@@ -143,7 +143,7 @@ var walkOneStep = function (options) {
   var opts = options || {};
   console.log('walkOneStep', opts);
 
-  return function (base, d3point, d3Index, options) {
+  return function (base, d3point, d3Index) {
     var neighbors = d3.around(d3point).filter(function (point) {
       return !!d3.getPoint(d3Index, point);
     });
@@ -194,18 +194,24 @@ var climbOneStep = function () {
 
 var guess = function (oneStep, d3point, d3Index, options) {
   var opts = x.extend({
-    step: 1
+    step: 1,
+    allowBackwards: false
   }, options);
   var helper = function (oneStep, base, d3point, d3Index, step, result) {
     if (step === 0) return result;
 
-    var list = oneStep(base, d3point, d3Index).filter(function (point) {
-      return !result.find(function (item) {
-        return item.list.find(function (found) {
-          return d3.samePoint(found, point);
-        });
-      })
-    });
+    var list = oneStep(base, d3point, d3Index, step)
+
+    if (!opts.allowBackwards) {
+      list = list.filter(function (point) {
+        // don't allow to go backwards
+        return !result.find(function (item) {
+          return item.list.find(function (found) {
+            return d3.samePoint(found, point);
+          });
+        })
+      });
+    }
 
     if (list.length === 0)  return result;
     result = result.concat([{left: step - 1, list: list}]);
@@ -305,6 +311,28 @@ var mosquitoMove = function (point, board) {
   return result;
 };
 
+var ladybugMove = function (point, board) {
+  var findAround = x.partial(function (isNeighbor, d3point) {
+    return d3.around(d3point).filter(function (point) {
+      var isChess = !!d3.getPoint(board, point);
+      return isNeighbor ? isChess : !isChess;
+    });
+  });
+
+  return x.compose(
+    d3.uniquePoints,
+    x.flatten,
+    x.map(findAround(false)),
+    x.filter(function (p) {
+      return !d3.samePoint(p, point);
+    }),
+    d3.uniquePoints,
+    x.flatten,
+    x.map(findAround(true)),
+    findAround(true)
+  )(point);
+};
+
 var moveFnByRoleId = function (roleId, isMimic) {
   switch (roleId) {
     case ROLE.BEE.ID:
@@ -324,6 +352,9 @@ var moveFnByRoleId = function (roleId, isMimic) {
 
     case ROLE.MOSQUITO.ID:
       return !isMimic ? mosquitoMove : function () { return [] };
+
+    case ROLE.LADYBUG.ID:
+      return ladybugMove;
 
     default:
       return beeMove;
