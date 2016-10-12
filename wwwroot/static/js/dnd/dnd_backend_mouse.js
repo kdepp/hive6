@@ -19,6 +19,8 @@ var dndBackendMouse = function () {
     return false;
   };
   var onMouseDown = function (ev) {
+    ev.preventDefault();
+
     var i, len, pos, $dom, onDragStart;
     var triples = sourceGetter && sourceGetter();
 
@@ -38,6 +40,8 @@ var dndBackendMouse = function () {
     }
   };
   var onMouseUp = function (ev) {
+    ev.preventDefault();
+
     var i, len, pos, $dom, onDrop;
     var triples = targetGetter && targetGetter();
 
@@ -60,6 +64,8 @@ var dndBackendMouse = function () {
   };
   var $lastOver = null;
   var onMouseMove = function (ev) {
+    ev.preventDefault();
+
     var i, len, pos, $dom, onMove, onDragLeave, found;
     var triples = targetGetter && targetGetter();
     if (!triples) return;
