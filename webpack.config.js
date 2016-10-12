@@ -1,4 +1,5 @@
 var webpack = require('webpack');
+var HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
   entry: {
@@ -7,9 +8,10 @@ module.exports = {
     ]
   },
   output: {
-    path: './wwwroot/static/js/dist/',
-    filename: '[name].d.js',
-    sourceMapFilename: '[name].map'
+    path: './wwwroot/static/js/dist',
+    filename: '[name].[hash].d.js',
+    publicPath: '/static/js/dist'
+    //sourceMapFilename: 'wwwroot/static/js/dist/[name].[hash].map'
   },
   devtool: 'source-map',
   plugins: [
@@ -17,6 +19,11 @@ module.exports = {
       compress: {
         warnings: false
       }
+    }),
+    new HtmlWebpackPlugin({
+      filename: '../../../../views/include/web_game_js.pug',
+      template: './empty.tpl',
+      chunks: ['webgame']
     })
   ]
 }
