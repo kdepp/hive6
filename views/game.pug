@@ -41,7 +41,7 @@ block content
 block append js
   if authorized
     script var globalPlayerTypes = #{JSON.stringify(playertypes)}; var globalGameId = !{JSON.stringify(_id.toString())};
-    script(src='/static/js/dist/webgame.d.js')
+    include include/web_game_js.pug
   else if sharePassword
     script.
       setTimeout(function () {

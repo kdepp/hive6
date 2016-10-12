@@ -11,7 +11,7 @@ block append js
     script.
       var globalPlayerTypes = [3, 3];
       var globalGameId = !{JSON.stringify(_id.toString())};
-    script(src='/static/js/dist/webgame.d.js')
+    include include/web_game_js.pug
 
 block content
   if error
