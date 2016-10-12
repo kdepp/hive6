@@ -2,14 +2,14 @@ var webpack = require('webpack');
 
 module.exports = {
   entry: {
-    bundle: [
+    webgame: [
       './wwwroot/static/js/web.js'
     ]
   },
   output: {
     path: './wwwroot/static/js/dist/',
-    filename: 'web.d.js',
-    sourceMapFilename: '[file].map'
+    filename: '[name].d.js',
+    sourceMapFilename: '[name].map'
   },
   devtool: 'source-map',
   plugins: [
