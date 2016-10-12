@@ -61,7 +61,7 @@ var remotePlayer = function (options) {
     checkInterval: 5000
   }, options);
 
-  var initialMovementCount;
+  var lastMovementCount;
 
   if (!opts.chair) {
     throw new Error('Remote Player: chair is required');
@@ -75,7 +75,7 @@ var remotePlayer = function (options) {
     prepareMove: function (data) {
       var lastMove = x.last(data.movements);
 
-      if (data.movements.length === initialMovementCount) {
+      if (data.movements.length === lastMovementCount) {
         return;
       }
 
@@ -104,9 +104,7 @@ var remotePlayer = function (options) {
 
   var connection = connect(x.extend({
     onUpdate: function (data) {
-      if (initialMovementCount === undefined) {
-        initialMovementCount = data.movements.length;
-      }
+      lastMovementCount = data.movements.length;
 
       player.emit('REMOTE_LOADED', data);
     },
