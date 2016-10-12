@@ -2,6 +2,7 @@
 
 var coreFactory    = require('./core/hive_core');
 var replayPlugin   = require('./plugin/replay_plugin');
+var flickerPlugin  = require('./plugin/title_flicker');
 var humanPlayer    = require('./player/human_player');
 var remotePlayer   = require('./player/remote_player');
 var replayPlayer   = require('./player/replay_player');
@@ -61,8 +62,30 @@ var gameFactory = function (options) {
     }
   });
 
+  var onlyOneHumanPlayer = opts.playertypes.filter(function (item) {
+    return item === 0;
+  }).length === 1;
+
+  var onlyOneHumanSideId = opts.playertypes.findIndex(function (item) {
+    return item === 0;
+  });
+
+  var flickerTitle = flickerPlugin({
+    document: opts.document,
+    titles: [
+      ['【轮到你啦】 -  昆虫棋网', 1000],
+      ['_', 500]
+    ]
+  });
+
   core.on('NEW_MOVEMENT', function (data) {
     vBoard.update(data);
+
+    // if just one human player, set title flicker
+    if (onlyOneHumanPlayer) {
+      var lastMove = x.last(data.movements);
+      flickerTitle(lastMove && lastMove.sideId !== onlyOneHumanSideId);
+    }
   });
 
   core.on('GAME_OVER', function (data) {
