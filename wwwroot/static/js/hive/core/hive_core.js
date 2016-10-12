@@ -97,6 +97,7 @@ var coreFactory = function (store, options) {
     notifyPlayer(1 - sideId, 'TOGGLE_YOUR_TURN', x.extend({on: false}, cloneData()));
     if (isPlace) {
       notifyPlayer(1 - sideId, 'INVENTORY_UPDATE', { inventory: inventories[1 - sideId] });
+      notifyPlayer(sideId, 'INVENTORY_UPDATE', { inventory: inventories[sideId] });
     }
   };
 
