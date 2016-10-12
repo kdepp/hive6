@@ -1,5 +1,7 @@
 /* eslint camelcase: 0, comma-style: 0, object-property-newline: 0 */
-
+var path = require('path');
+var crypto = require('crypto');
+var child_process = require('child_process');
 var ensureLoggedIn = require('connect-ensure-login').ensureLoggedIn;
 var passport = require('../common/passport');
 var ERROR = require('../common/error_code');
@@ -279,6 +281,34 @@ var webRouter = [
         });
       }
     ]
+  }
+  , {
+    method: 'post', url: '/workflow/hook',
+    callback: function (req, res) {
+      var gEvent = req.get('X-GitHub-Event');
+      var gSignature = req.get('X-Hub-Signature');
+      var payload = req.body;
+      var githubHmacHex = function (payload) {
+        var hmac = crypto.createHmac('sha1', 'online.hive6');
+        hmac.update(JSON.stringify(payload));
+        return 'sha1=' + hmac.digest('hex');
+      };
+      var pullAndRestart = function () {
+        var arg = {
+          cwd: path.join(__dirname, '..')
+        };
+        var pull = child_process.spawn('git', ['pull'], arg);
+
+        pull.on('close', function (code) {
+          if (code !== 0) return;
+          child_process.spawn('pm2', ['restart', 'index.js'], arg);
+        });
+      };
+
+      if (gEvent === 'push' && gSignature === githubHmacHex(payload)) {
+        pullAndRestart();
+      }
+    }
   }
 ];
 
