@@ -229,7 +229,7 @@ var mGame = {
       return Promise.reject(ERROR.GAME.MOVE.INVALID_SIDE);
     }
 
-    if ([0, 1, 2, 3, 4].indexOf(roleId) === -1) {
+    if ([0, 1, 2, 3, 4, 5, 6].indexOf(roleId) === -1) {
       return Promise.reject(ERROR.GAME.MOVE.INVALID_ROLE);
     }
 
