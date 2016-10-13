@@ -122,7 +122,7 @@ var coreFactory = function (store, options) {
     },
     possiblePlacement: function (sideId, roleId) {
       if (!fns.canMove(sideId)) return null;
-      return m.guessPlace(coordinates, movements, sideId, roleId);
+      return m.guessPlace(board, coordinates, movements, sideId, roleId);
     },
     possibleMovement: function (sideId, src) {
       if (!fns.canMove(sideId)) return null;

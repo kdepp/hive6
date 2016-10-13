@@ -377,14 +377,18 @@ var guessMove = function (board, coordinates, movements, point, sideId, roleId) 
   return filterKeepOneHive(board, point, result);
 };
 
-var guessPlace = function (coordinates, movements, sideId, roleId) {
+var guessPlace = function (board, coordinates, movements, sideId, roleId) {
   var onSide = x.partial(function (sideId, obj) {
     return obj.sideId === sideId;
   });
-  var findCoord = function (point) {
-    return coordinates.find(function (coord) {
-      return pu.d3.samePoint(coord.point, point);
-    });
+  var onTop = function (coordinate) {
+    return d3.getPoint(board, coordinate.point) === coordinate;
+  };
+  var coordinateOnTopOfPoint = function (point) {
+    return d3.getPoint(board, point);
+  };
+  var emptyOnPoint = function (point) {
+    return !coordinateOnTopOfPoint(point);
   };
   var hasBee;
 
@@ -416,15 +420,16 @@ var guessPlace = function (coordinates, movements, sideId, roleId) {
   return x.compose(
     x.filter(function (point) {
       return !pu.d3.around(point).find(function (sub) {
-        var found = findCoord(sub);
+        var found = coordinateOnTopOfPoint(sub);
         return found && found.sideId === 1 - sideId;
       });
     }),
-    x.filter(function (point) { return !findCoord(point) }),
+    x.filter(function (point) { return emptyOnPoint(point) }),
     pu.d3.uniquePoints,
     x.flatten,
     x.map(pu.d3.around),
     x.pluck('point'),
+    x.filter(onTop),
     x.filter(onSide(sideId))
   )(coordinates)
 };
