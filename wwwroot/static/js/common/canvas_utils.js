@@ -91,13 +91,17 @@ var marginHexagon = function (ctx, options) {
     marginStyle: 'rgb(255, 255, 255)',
     center: [100, 100],
     radius: 50,
-    margin: 3
+    margin: 3,
+    image: null,
+    imageSize: null,
+    alpha: 1
   }, options);
 
   var resetStyle = setContext(ctx, [
     ['fillStyle', opts.fillStyle],
     ['strokeStyle', opts.marginStyle],
-    ['lineWidth', opts.margin]
+    ['lineWidth', opts.margin],
+    ['globalAlpha', opts.alpha]
   ]);
 
   hexagon(ctx, opts.center, opts.radius);

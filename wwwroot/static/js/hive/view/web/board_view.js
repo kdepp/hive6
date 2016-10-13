@@ -224,15 +224,18 @@ var boardFactory = function (_opts) {
       var coord = coordinates[i];
       var side  = x.findValue(SIDE, 'ID', coord.sideId);
       var role  = x.findValue(ROLE, 'ID', coord.roleId);
+      var sizeRatio = Math.pow(0.8, coord.zIndex - 1)
+      var alphaRatio = Math.pow(0.6, coord.zIndex - 1)
 
       cu.marginHexagon(ctx, {
         center: transform(coord.point),
-        radius: radius,
+        radius: x.multi(sizeRatio)(radius),
+        alpha: alphaRatio,
         margin: 1,
         marginStyle: '#2e3134',
         fillStyle: coord.isDragging ? 'rgba(149, 145, 145, 0.5)' : side.COLOR,
         image: coord.isDragging ? null : x.sprintf(role.IMG, {side: side.ID ? 'op' : 'me'}),
-        imageSize: role.IMGSIZE,
+        imageSize: x.map(x.multi(sizeRatio))(role.IMGSIZE),
         text: i
       });
     });
