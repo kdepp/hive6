@@ -8,10 +8,13 @@ block append css
   link(rel='stylesheet' href='/static/css/game.css')
 
 block append js
-  script.
-    var globalPlayerTypes = [0, 0];
-    var globalGameId = null;
   include include/web_game_js.pug
+  script.
+    initGame({
+      playerTypes: [0, 0],
+      playerNames: ['You', 'You'],
+      gameId: null,
+    });
 
 block content
   div.game-box

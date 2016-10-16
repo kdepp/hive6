@@ -24,15 +24,16 @@ var gameFactory = function (options) {
     $boardContainer: null,
     $replayContainer: null,
     $toolbarContainers: [],
-    playertypes: [CG.PLAYER_TYPE.HUMAN.ID, CG.PLAYER_TYPE.HUMAN.ID],
+    playerTypes: [CG.PLAYER_TYPE.HUMAN.ID, CG.PLAYER_TYPE.HUMAN.ID],
+    playerNames: ['nobody', 'nobody'],
     gameId: null
   }, options);
 
-  if (opts.playertypes.length !== 2) {
+  if (opts.playerTypes.length !== 2) {
     throw new Error('Game Factory: must have two players');
   }
 
-  if (!x.and(opts.playertypes.map(function (type) {
+  if (!x.and(opts.playerTypes.map(function (type) {
     return [0, 1, 2, 3].indexOf(type) !== -1;
   }))) {
     throw new Error('Game Factory: invalid player type');
@@ -63,11 +64,11 @@ var gameFactory = function (options) {
     }
   });
 
-  var onlyOneHumanPlayer = opts.playertypes.filter(function (item) {
+  var onlyOneHumanPlayer = opts.playerTypes.filter(function (item) {
     return item === 0;
   }).length === 1;
 
-  var onlyOneHumanSideId = opts.playertypes.findIndex(function (item) {
+  var onlyOneHumanSideId = opts.playerTypes.findIndex(function (item) {
     return item === 0;
   });
 
@@ -111,7 +112,7 @@ var gameFactory = function (options) {
   var replayEngine;
   var vReplay;
 
-  opts.playertypes.map(function (type, sideId) {
+  opts.playerTypes.map(function (type, sideId) {
     var chair = core.register(sideId);
     var vToolbar = toolbarFactory({
       document: opts.document,
@@ -121,7 +122,7 @@ var gameFactory = function (options) {
       sideId: sideId,
       inventory: chair.inventory(),
       isYourTurn: sideId === 0,
-      playerTypeName: ['You', 'Remote', 'AI', 'Replay'][type],
+      playerTypeName: opts.playerNames[sideId],
       canMove: function () {
         return chair.canMove();
       }

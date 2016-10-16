@@ -40,8 +40,13 @@ block content
 
 block append js
   if authorized
-    script var globalPlayerTypes = #{JSON.stringify(playertypes)}; var globalGameId = !{JSON.stringify(_id.toString())};
     include include/web_game_js.pug
+    script.
+      initGame({
+        playerTypes: #{JSON.stringify(playerTypes)},
+        playerNames: !{JSON.stringify(playerNames)},
+        gameId: !{JSON.stringify(_id.toString())},
+      });
   else if sharePassword
     script.
       setTimeout(function () {

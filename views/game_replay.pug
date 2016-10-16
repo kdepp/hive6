@@ -8,10 +8,13 @@ block append css
 
 block append js
   if !error
-    script.
-      var globalPlayerTypes = [3, 3];
-      var globalGameId = !{JSON.stringify(_id.toString())};
     include include/web_game_js.pug
+    script.
+      initGame({
+        playerTypes: [3, 3],
+        playerNames: !{JSON.stringify(playerNames)},
+        gameId: !{JSON.stringify(_id.toString())},
+      });
 
 block content
   if error

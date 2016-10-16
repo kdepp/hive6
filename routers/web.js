@@ -3,6 +3,8 @@ var path = require('path');
 var crypto = require('crypto');
 var child_process = require('child_process');
 var ensureLoggedIn = require('connect-ensure-login').ensureLoggedIn;
+var x = require('kd-utils');
+
 var passport = require('../common/passport');
 var ERROR = require('../common/error_code');
 var mUser = require('../models/user');
@@ -175,7 +177,7 @@ var webRouter = [
     callback: function (req, res) {
       var gameId = req.params.id;
 
-      mGame.findById(gameId)
+      mGame.findByIdWithUserInfo(gameId)
       .then(
         function (game) {
           if (!game || game.status !== 2) {
@@ -188,7 +190,12 @@ var webRouter = [
         }
       )
       .then(function (game) {
-        res.render('game_replay', userAndError(req, game));
+        var data = Object.assign({
+          playerNames: x.pluck('username', game.players)
+        }, game);
+
+        data = userAndError(req, data);
+        res.render('game_replay', data);
       })
     }
   }
@@ -200,7 +207,7 @@ var webRouter = [
         var gameId = req.params.id;
         var userId = req.user._id.toString();
 
-        mGame.findById(gameId)
+        mGame.findByIdWithUserInfo(gameId)
         .then(
           function (game) {
             var data;
@@ -209,10 +216,16 @@ var webRouter = [
               return res.redirect('/game/' + gameId + '/replay');
             }
 
-            var comein = game.players.filter(function (item) { return item === null }).length > 0;
+            var comein = game.players.filter(function (item) {
+              return item === null || item === undefined;
+            }).length > 0;
+
+            var found  = game.players.find(function (user) {
+              return user && user._id === userId;
+            });
 
             if (comein) {
-              if (game.players.indexOf(userId) !== -1) {
+              if (found) {
                 data = Object.assign({
                   sharePassword: true
                 }, game);
@@ -223,17 +236,18 @@ var webRouter = [
                 };
               }
             } else {
-              if (game.players.indexOf(userId) === -1) {
+              if (!found) {
                 data = {
                   authorized: false
                 };
               } else {
                 data = Object.assign({
                   authorized: true,
-                  sideId: game.players.indexOf(userId),
-                  playertypes: game.players.map(function (player) {
-                    return player === userId ? 0 : 1
-                  })
+                  sideId: game.players.indexOf(found),
+                  playerTypes: game.players.map(function (player) {
+                    return player._id === userId ? 0 : 1
+                  }),
+                  playerNames: x.pluck('username', game.players)
                 }, game);
               }
             }
@@ -246,6 +260,7 @@ var webRouter = [
             res.redirect('/games?fr=game_detail');
           }
         )
+        .catch(function (e) { console.log(e, e.stack); });
       }
     ]
   }

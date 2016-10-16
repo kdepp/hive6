@@ -92,7 +92,7 @@ var mGame = {
 
       return db.users.find({_id: {$in: userIds}})
       .then(function (users) {
-        return x.extend({}, game, {
+        return Object.assign({}, game, {
           players: game.players.map(function (userId) {
             var found = users.find(function (user) { return user._id.toString() === userId });
             return found && {

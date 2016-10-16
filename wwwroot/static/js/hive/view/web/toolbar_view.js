@@ -8,6 +8,14 @@ var Eventer = require('../../../common/event_emitter');
 var ROLE = CG.ROLE;
 var SIDE = CG.SIDE;
 
+var ellipsis = function (count, str) {
+  str = '' + str;
+
+  if (count <= 0) throw new Error('ellipsis: count <= 0');
+  if (str.length > count) return str.slice(0, count) + '..';
+  return str;
+};
+
 var toolbarFactory = function (options) {
   var opts = x.extend({
     dnd: null,
@@ -95,7 +103,7 @@ var toolbarFactory = function (options) {
       ['fillStyle', '#fff']
     ]);
 
-    ctx.fillText(playerConfig.title + ' (' + opts.playerTypeName + ')', 75, 30);
+    ctx.fillText(playerConfig.title + ' (' + ellipsis(10, opts.playerTypeName) + ')', 75, 30);
     reset();
 
     // Render Available Chess
