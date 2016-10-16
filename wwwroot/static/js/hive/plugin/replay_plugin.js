@@ -12,12 +12,12 @@ var singleton = function (gameId) {
   var players = [null, null];
   var movementIndex = -1;
   var movements = null;
-  var promise = request.get('/api/v1/game/' + gameId + '/check?timestamp=0')
+  var promise = request.get('/api/v1/game/' + gameId + '/replay')
   .then(function (obj) {
     var result = JSON.parse(obj.text);
 
     if (result.error_code !== 0) {
-      throw new Error('error_code', data);
+      throw new Error('error_code', result);
     }
 
     if (result.data.coordinates && result.data.movements) {
@@ -35,8 +35,6 @@ var singleton = function (gameId) {
         if (movementIndex >= movements.length - 1) {
           console.warn('Replay Players -> next: no more movements');
         }
-
-        debugger
 
         var movement = movements[++movementIndex];
         var player = players[movement.sideId];

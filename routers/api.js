@@ -147,7 +147,6 @@ var apiRouter = [
   , {
     method: 'get', url: version('/game/:id/check'),
     callback: function (req, res) {
-      console.log('in here');
       if (!req.user)  return output(res, ERROR.USER.NEED_LOGIN, null);
 
       var userId = req.user._id.toString();
@@ -164,6 +163,28 @@ var apiRouter = [
         })
       )
       .catch(logError);
+    }
+  }
+  , {
+    method: 'get', url: version('/game/:id/replay'),
+    callback: function (req, res) {
+      var gameId = req.params.id;
+
+      mGame.findById(gameId)
+      .then(
+        function (game) {
+          if (game.status !== 2) {
+            throw ERROR.GAME.GAME_NOT_END_YET;
+          }
+
+          output(res, 0, game);
+        }
+      )
+      .catch(
+        wrapUnknownError(res, function (error_code) {
+          output(res, error_code, null);
+        })
+      )
     }
   }
 ];
