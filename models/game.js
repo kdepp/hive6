@@ -84,6 +84,26 @@ var mGame = {
       return game;
     });
   },
+  findByIdWithUserInfo: function (id) {
+    return mGame.findById(id)
+    .then(function (game) {
+      var exist = function (a) { return !!a; };
+      var userIds = game.players.filter(exist).map(ObjectID);
+
+      return db.users.find({_id: {$in: userIds}})
+      .then(function (users) {
+        return x.extend({}, game, {
+          players: game.players.map(function (userId) {
+            var found = users.find(function (user) { return user._id.toString() === userId });
+            return found && {
+              _id: found._id.toString(),
+              username: found.username
+            };
+          })
+        });
+      });
+    });
+  },
   findByUserId: function (userId) {
     return db.games.find({players: userId.toString()}, {}, {sort: [['updateTime', 'desc']]})
     .then(function (games) {
