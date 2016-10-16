@@ -372,8 +372,17 @@ var guessMove = function (board, coordinates, movements, point, sideId, roleId) 
 
   // No bee onboard, no movement allowed
   if (!hasBee)  return [];
+  var result;
 
-  var result = moveFnByRoleId(roleId)(point, board);
+  if (x.last(movements).sideId === 1 - sideId) {
+    result = pu.d3.uniquePoints([].concat(
+      moveFnByRoleId(roleId)(point, board),
+      pillbugCarryMovement(board, coordinates, movements, point)
+    ));
+  } else {
+    result = pillbugCarryMovement(board, coordinates, movements, point);
+  }
+
   return filterKeepOneHive(board, point, result);
 };
 
@@ -434,9 +443,61 @@ var guessPlace = function (board, coordinates, movements, sideId, roleId) {
   )(coordinates)
 };
 
+var pillbugCarryMovement = function (board, coordinates, movements, point) {
+  // find pillbug on your side around the point
+  var nextSideId = movements.length > 0 ? (1 - x.last(movements).sideId) : 0;
+  var target  = pu.d3.getPoint(board, point);
+  var pillbug = pu.d3.around(point).reduce(function (prev, p) {
+    if (prev) return prev;
+    var chess = pu.d3.getPoint(board, p);
+    var found = chess && chess.roleId === CG.ROLE.PILLBUG.ID && chess.sideId === nextSideId;
+    return found ? chess : null;
+  }, null);
+
+  // no pillbug no carry
+  if (!pillbug) return [];
+
+  // cannot carry a chess not on ground
+  if (target.zIndex > 1) return [];
+
+  // cannot carry the chess which has just been moved/placed
+  console.log('pillbug carry', x.last(movements).dst, point, pu.d3.samePoint(x.last(movements).dst, point))
+
+  if (pu.d3.samePoint(x.last(movements).dst, point))  return [];
+
+  return pu.d3.around(pillbug.point).filter(function (p) {
+    return !pu.d3.getPoint(board, p);
+  });
+};
+
+var allowPillbugCarry = function (board, coordinates, movements, sideId, point) {
+  var possibilities = pillbugCarryMovement(board, coordinates, movements, point);
+  return possibilities && possibilities.length > 0;
+};
+
+var isMovedByPillbug = function (board, coordinates, movements, src, dst) {
+  var chess = pu.d3.getPoint(src);
+
+  if (chess.sideId === x.last(movements).sideId) {
+    return true;
+  }
+
+  var possibleNormalMove  = moveFnByRoleId(chess.roleId)(src, board);
+  var possiblePillbugMove = pillbugCarryMovement(board, coordinates, movements, src);
+  var inList = function (point, list) {
+    return !!list.find(function (p) {
+      return pu.d3.samePoint(point, p);
+    })
+  };
+
+  return inList(dst, possiblePillbugMove) && !inList(dst, possibleNormalMove);
+};
+
 module.exports = {
   guessPlace: guessPlace,
   guessMove: guessMove,
+  allowPillbugCarry: allowPillbugCarry,
+  isMovedByPillbug: isMovedByPillbug,
   checkPlace: function () {
     return true;
   },

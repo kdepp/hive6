@@ -84,7 +84,7 @@ var boardFactory = function (_opts) {
         });
 
         if (!found) return false;
-        if (!opts.canMove(found.sideId))  return false;
+        if (!opts.canMove(found.sideId, found.point))  return false;
 
         vBoard.emit('START_MOVE_' + found.sideId, { src: found.point });
         found.isDragging = true;

@@ -59,8 +59,8 @@ var gameFactory = function (options) {
     samples: sampleChesses,
     radius: 30,
     coordinates: core.coordinates(),
-    canMove: function (sideId) {
-      return core.canMove(sideId);
+    canMove: function (sideId, point) {
+      return core.canMove(sideId, point);
     }
   });
 

@@ -10,10 +10,8 @@ var ROLE = {
   SPIDER:       { ID: 3, IMG: 'spider_${side}.png',      IMGSIZE: [71, 77] },
   BEETLE:       { ID: 4, IMG: 'beetle_${side}.png',      IMGSIZE: [51, 79] },
   MOSQUITO:     { ID: 5, IMG: 'mosquito_${side}.png',    IMGSIZE: [88, 84] },
-  LADYBUG:      { ID: 6, IMG: 'ladybug_${side}.png',     IMGSIZE: [90, 108] }
-  /*
-  PILLBUG:      { ID: 7, IMG: 'pillbug_${side}.png'     , IMGSIZE: [87, 111] }
-  */
+  LADYBUG:      { ID: 6, IMG: 'ladybug_${side}.png',     IMGSIZE: [90, 108] },
+  PILLBUG:      { ID: 7, IMG: 'pillbug_${side}.png',     IMGSIZE: [87, 111] }
 };
 
 var PLAYER_TYPE = {

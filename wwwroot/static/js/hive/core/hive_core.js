@@ -7,7 +7,7 @@ var CG = require('../../constant/game');
 var d3 = pu.d3;
 
 var calcInventory = function (board, coordinates, extension) {
-  var initial = x.repeat(2, [1, 3, 3, 2, 2, 1, 1]);
+  var initial = x.repeat(2, [1, 3, 3, 2, 2, 1, 1, 1]);
 
   coordinates.forEach(function (c) {
     initial[c.sideId][c.roleId] --;
@@ -114,18 +114,31 @@ var coreFactory = function (store, options) {
     inventory: function (sideId) {
       return inventories[sideId];
     },
-    canMove: function (sideId) {
+    canMove: function (sideId, point) {
       if ([CG.GAME_STATUS.IN_PROGRESS, CG.GAME_STATUS.INITIAL].indexOf(status) === -1)  return false;
       if (registered.length !== 2)  return false;
       if (stepCount() === 0)        return sideId === 0;
-      return x.last(movements).sideId === 1 - sideId;
+
+      var lastMove = x.last(movements);
+
+      // if last move is pillbug special move and you are moving it again now
+      if (lastMove.type === 2 && d3.samePoint(lastMove.dst, point)) {
+        return false;
+      }
+
+      // Move next players chess, or move last players chess next to your own pillbug
+      if (lastMove.sideId === 1 - sideId) {
+        return true;
+      } else {
+        return (point && m.allowPillbugCarry(board, coordinates, movements, sideId, point));
+      }
     },
     possiblePlacement: function (sideId, roleId) {
       if (!fns.canMove(sideId)) return null;
       return m.guessPlace(board, coordinates, movements, sideId, roleId);
     },
     possibleMovement: function (sideId, src) {
-      if (!fns.canMove(sideId)) return null;
+      if (!fns.canMove(sideId, src)) return null;
       var roleId = d3.getPoint(board, src).roleId;
       return m.guessMove(board, coordinates, movements, src, sideId, roleId);
     },
@@ -168,13 +181,15 @@ var coreFactory = function (store, options) {
       checkWin();
     },
     move: function (sideId, src, dst) {
-      if (!fns.canMove(sideId)) {
+      if (!fns.canMove(sideId, src)) {
         throw new Error('CANNOT MOVE');
       }
 
       if (!m.checkMove(board, sideId, src, dst)) {
         throw new Error('INVALID MOVEMENT');
       }
+
+      var isMovedByPillbug = m.isMovedByPillbug(board, coordinates, movements, src, dst);
 
       // modify board
       var info     = pu.d3.getPoint(board, dst);
@@ -187,8 +202,8 @@ var coreFactory = function (store, options) {
 
       // update movements
       movements.push({
-        type: 1,
-        sideId: sideId,
+        type: isMovedByPillbug ? 2 : 1,
+        sideId: 1 - x.last(movements).sideId,
         roleId: coord.roleId,
         src: src,
         dst: dst
@@ -204,8 +219,8 @@ var coreFactory = function (store, options) {
     coordinates: function () {
       return x.deepClone(coordinates);
     },
-    canMove: function (sideId) {
-      return fns.canMove(sideId);
+    canMove: function (sideId, point) {
+      return fns.canMove(sideId, point);
     },
     register: function (sideId) {
       if (registered.find(function (item) { return item.sideId === sideId })) {

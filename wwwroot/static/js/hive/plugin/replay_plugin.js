@@ -42,6 +42,7 @@ var singleton = function (gameId) {
         if (movement.type === 0) {
           player.place(movement.roleId, movement.dst);
         } else {
+          // include type === 1 and type === 2 (moved by pillbug)
           player.move(movement.src, movement.dst);
         }
       });
