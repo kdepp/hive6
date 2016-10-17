@@ -201,15 +201,17 @@ var coreFactory = function (store, options) {
       setCoordinates(coordinates);
 
       // update movements
+      var nextSideId = 1 - x.last(movements).sideId;
+
       movements.push({
         type: isMovedByPillbug ? 2 : 1,
-        sideId: 1 - x.last(movements).sideId,
+        sideId: nextSideId,
         roleId: coord.roleId,
         src: src,
         dst: dst
       });
 
-      notify(1 - sideId, false);
+      notify(1 - nextSideId, false);
       checkWin();
     }
   };

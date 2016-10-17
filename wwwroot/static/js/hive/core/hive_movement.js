@@ -444,30 +444,66 @@ var guessPlace = function (board, coordinates, movements, sideId, roleId) {
 };
 
 var pillbugCarryMovement = function (board, coordinates, movements, point) {
+  // cannot carry the chess which has just been moved/placed
+  if (pu.d3.samePoint(x.last(movements).dst, point))  return false;
+
   // find pillbug on your side around the point
   var nextSideId = movements.length > 0 ? (1 - x.last(movements).sideId) : 0;
-  var target  = pu.d3.getPoint(board, point);
-  var pillbug = pu.d3.around(point).reduce(function (prev, p) {
-    if (prev) return prev;
-    var chess = pu.d3.getPoint(board, p);
-    var found = chess && chess.roleId === CG.ROLE.PILLBUG.ID && chess.sideId === nextSideId;
-    return found ? chess : null;
-  }, null);
 
-  // no pillbug no carry
-  if (!pillbug) return [];
+  var notLastMovedByPillbug = function (point) {
+    var lastMove = x.last(movements);
+    return !(lastMove.type === 2 && pu.d3.samePoint(lastMove.dst, point));
+  };
 
-  // cannot carry a chess not on ground
-  if (target.zIndex > 1) return [];
+  var findSpecificAround = function (board, point, constraint) {
+    var check = Object.keys(constraint || {}).reduce(function (prev, key) {
+      return function (obj) {
+        return prev(obj) && obj[key] === constraint[key];
+      };
+    }, function () { return true; });
 
-  // cannot carry the chess which has just been moved/placed
-  console.log('pillbug carry', x.last(movements).dst, point, pu.d3.samePoint(x.last(movements).dst, point))
+    return pu.d3.around(point).filter(function (p) {
+      var chess = pu.d3.getPoint(board, p);
+      return chess && check(chess);
+    });
+  };
 
-  if (pu.d3.samePoint(x.last(movements).dst, point))  return [];
+  var pillbugs = findSpecificAround(board, point, {
+    sideId: nextSideId,
+    roleId: CG.ROLE.PILLBUG.ID
+  })
+  .filter(notLastMovedByPillbug);
 
-  return pu.d3.around(pillbug.point).filter(function (p) {
-    return !pu.d3.getPoint(board, p);
+  var mosquitos = findSpecificAround(board, point, {
+    sideId: nextSideId,
+    roleId: CG.ROLE.MOSQUITO.ID
+  })
+  .filter(notLastMovedByPillbug)
+  .filter(function (point) {
+    return findSpecificAround(board, point, {
+      roleId: CG.ROLE.PILLBUG.ID
+    }).length > 0;
   });
+
+  var qualified = pu.d3.uniquePoints([].concat(pillbugs, mosquitos))
+  .filter(function (point) {
+    // cannot carry a chess not on ground
+    if (point.zIndex > 1) return false;
+    return true;
+  });
+
+  return x.compose(
+    pu.d3.uniquePoints,
+    x.flatten,
+    x.map(
+      x.compose(
+        x.filter(function (p) {
+          return !pu.d3.getPoint(board, p);
+        }),
+        pu.d3.around
+      )
+    )
+  )(qualified);
 };
 
 var allowPillbugCarry = function (board, coordinates, movements, sideId, point) {
